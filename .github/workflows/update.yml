@@ -67,16 +67,22 @@ jobs:
           fi
           python3 stremio-updater.py "${ARGS[@]}"
 
+      - name: Regenerate README version tables
+        run: |
+          # Rebuilds the "Available versions" tables from the JSON sources.
+          # Deterministic, no network — only rewrites the marked block.
+          python3 scripts/render_readme.py
+
       - name: Check for changes
         id: diff
         run: |
-          if git diff --quiet stremio-ios.json stremio-tvos.json; then
+          if git diff --quiet stremio-ios.json stremio-tvos.json README.md; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
             echo "## Diff summary" >> "$GITHUB_STEP_SUMMARY"
             echo '```diff' >> "$GITHUB_STEP_SUMMARY"
-            git diff --stat stremio-ios.json stremio-tvos.json >> "$GITHUB_STEP_SUMMARY"
+            git diff --stat stremio-ios.json stremio-tvos.json README.md >> "$GITHUB_STEP_SUMMARY"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
           fi
 
@@ -85,9 +91,9 @@ jobs:
         run: |
           git config user.name "stremio-altstore-bot"
           git config user.email "bot@stremio-altstore.local"
-          git add stremio-ios.json stremio-tvos.json
+          git add stremio-ios.json stremio-tvos.json README.md
           # Detailed commit message
-          DIFFSTAT=$(git diff --cached --stat stremio-ios.json stremio-tvos.json | tail -1)
+          DIFFSTAT=$(git diff --cached --stat stremio-ios.json stremio-tvos.json README.md | tail -1)
           git commit -m "chore: update Stremio source" \
                      -m "Auto-discovered new Stremio iOS / tvOS versions on dl.strem.io CDN." \
                      -m "" \

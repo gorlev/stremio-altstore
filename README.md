@@ -2,8 +2,8 @@
 
 [![Update source](https://github.com/gorlev/stremio-altstore/actions/workflows/update.yml/badge.svg)](https://github.com/gorlev/stremio-altstore/actions/workflows/update.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Stremio iOS versions](https://img.shields.io/badge/iOS-7%20versions-7055D9)](stremio-ios.json)
-[![Stremio tvOS versions](https://img.shields.io/badge/tvOS-4%20versions-7055D9)](stremio-tvos.json)
+[![Stremio iOS versions](https://img.shields.io/badge/iOS-9%20versions-7055D9)](stremio-ios.json)
+[![Stremio tvOS versions](https://img.shields.io/badge/tvOS-5%20versions-7055D9)](stremio-tvos.json)
 
 An **unofficial** AltStore-format source collection for Stremio iOS and tvOS, compatible with any signing app that consumes the standard AltStore source format — Feather, AltStore Classic, AltStore PAL, ESign, Scarlet, Sideloadly, and others. Stremio's official source at [`dl.strem.io/apple/altstore/source.json`](https://dl.strem.io/apple/altstore/source.json) cannot be parsed by most third-party signing apps because it uses Apple's encrypted App Store Connect manifest format — this repo publishes standard AltStore-format JSON sources that point to Stremio's plain IPA artifacts.
 
@@ -128,12 +128,16 @@ Prefer to run your own source (own URL, own update schedule)? Fork and host it i
 
 ## Available versions
 
+<!-- BEGIN:AVAILABLE_VERSIONS -->
+
 ### iOS / iPadOS — `stremio-ios.json`
 
 #### Stremio (PAL, full-featured) — `com.stremio.pal`
 
 | Version | Build | Date | Size | Download |
 |---|---|---|---|---|
+| 2.0.4 | 19 | 2026-07-10 | 72 MB | [IPA](https://dl.strem.io/apple/2.0.4b19/ios/stremio_iOS.ipa) |
+| 2.0.3 | 18 | 2026-07-09 | 72 MB | [IPA](https://dl.strem.io/apple/2.0.3b18/ios/stremio_iOS.ipa) |
 | 2.0.2 | 17 | 2026-06-19 | 74 MB | [IPA](https://dl.strem.io/apple/2.0.2b17/ios/stremio_iOS.ipa) |
 | 2.0.1 | 16 | 2026-06-16 | 74 MB | [IPA](https://dl.strem.io/apple/2.0.1b16/ios/stremio_iOS.ipa) |
 | 2.0.1 | 15 | 2026-06-15 | 74 MB | [IPA](https://dl.strem.io/apple/2.0.1b15/ios/stremio_iOS.ipa) |
@@ -145,7 +149,7 @@ Prefer to run your own source (own URL, own update schedule)? Fork and host it i
 
 | Version | Build | Date | Size | Download |
 |---|---|---|---|---|
-| 1.3.6 beta 7 | 7 | 2026-01-31 | 76 MB | [IPA](https://dl.strem.io/apple/1.3.6b7/ios/stremio_iOS.ipa) |
+| 1.3.6 | 7 | 2026-01-31 | 75 MB | [IPA](https://dl.strem.io/apple/1.3.6b7/ios/stremio_iOS.ipa) |
 
 ### tvOS — `stremio-tvos.json`
 
@@ -153,16 +157,20 @@ Prefer to run your own source (own URL, own update schedule)? Fork and host it i
 
 | Version | Build | Date | Size | Download |
 |---|---|---|---|---|
+| 2.0.3 | 18 | 2026-07-09 | 70 MB | [IPA](https://dl.strem.io/apple/2.0.3b18/tvos/stremio_tvOS.ipa) |
 | 2.0.2 | 17 | 2026-06-19 | 70 MB | [IPA](https://dl.strem.io/apple/2.0.2b17/tvos/stremio_tvOS.ipa) |
 | 2.0.1 | 16 | 2026-06-16 | 70 MB | [IPA](https://dl.strem.io/apple/2.0.1b16/tvos/stremio_tvOS.ipa) |
 | 2.0.1 | 15 | 2026-06-15 | 70 MB | [IPA](https://dl.strem.io/apple/2.0.1b15/tvos/stremio_tvOS.ipa) |
-| 1.3.6 beta 7 | 7 | 2026-01-31 | 74 MB | [IPA](https://dl.strem.io/apple/1.3.6b7/tvos/stremio_tvOS.ipa) |
 
 #### Stremio Lite (legacy) — `com.stremio.ios`
 
 | Version | Build | Date | Size | Download |
 |---|---|---|---|---|
-| 1.3.6 beta 7 | 7 | 2026-01-31 | 74 MB | [IPA](https://dl.strem.io/apple/1.3.6b7/tvos/stremio_tvOS.ipa) |
+| 1.3.6 | 7 | 2026-01-31 | 73 MB | [IPA](https://dl.strem.io/apple/1.3.6b7/tvos/stremio_tvOS.ipa) |
+
+<!-- END:AVAILABLE_VERSIONS -->
+
+> 🤖 The tables above are auto-generated from the JSON sources by `scripts/render_readme.py` on every update — do not edit them by hand.
 
 > 📦 Every version was verified against the IPA's Info.plist (downloaded via HTTP Range, < 5 KB each). Bundle identifiers, version strings, and `MinimumOSVersion` values were read directly from the IPAs.
 

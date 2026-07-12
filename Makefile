@@ -3,8 +3,9 @@
 # Shortcut commands:
 #   make help        — show this help message
 #   make dry-run     — run the updater in dry-run mode (no writes)
-#   make update      — perform a real update
+#   make update      — perform a real update (also refreshes README tables)
 #   make verify      — update with Info.plist verification (slower)
+#   make readme      — regenerate the README "Available versions" tables
 #   make lint        — Python code quality checks
 #   make format      — format Python code
 #   make clean       — remove temporary files
@@ -20,7 +21,7 @@ GREEN := \033[32m
 YELLOW := \033[33m
 RESET := \033[0m
 
-.PHONY: help dry-run update verify lint format clean set-urls ios tvos stats
+.PHONY: help dry-run update verify readme lint format clean set-urls ios tvos stats
 
 help:  ## Show this help message
 	@echo ""
@@ -40,13 +41,19 @@ dry-run:  ## Run the updater in dry-run mode (does not write files)
 	@echo "$(YELLOW)→ Dry run — scan only$(RESET)"
 	$(PYTHON) $(SCRIPT) --dry-run --verbose
 
-update:  ## Real update — write new versions to JSON
+update:  ## Real update — write new versions to JSON (refreshes README too)
 	@echo "$(YELLOW)→ Real update$(RESET)"
 	$(PYTHON) $(SCRIPT)
+	@$(MAKE) --no-print-directory readme
 
 verify:  ## Update with Info.plist verification (slower, ~100KB/IPA)
 	@echo "$(YELLOW)→ Update with Info.plist verification$(RESET)"
 	$(PYTHON) $(SCRIPT) --info-plist --verbose
+	@$(MAKE) --no-print-directory readme
+
+readme:  ## Regenerate the README "Available versions" tables from the JSON
+	@echo "$(YELLOW)→ Regenerate README version tables$(RESET)"
+	$(PYTHON) scripts/render_readme.py
 
 ios:  ## Update only the iOS source (pass DRY/UPDATE/VERIFY via ARGS)
 	@echo "$(YELLOW)→ iOS only$(RESET)"
