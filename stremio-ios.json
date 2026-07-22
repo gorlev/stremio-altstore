@@ -29,6 +29,16 @@
       },
       "versions": [
         {
+          "version": "2.0.5",
+          "buildVersion": "20",
+          "date": "2026-07-22",
+          "localizedDescription": "Stremio 2.0.5 (build 20).",
+          "downloadURL": "https://dl.strem.io/apple/2.0.5b20/ios/stremio_iOS.ipa",
+          "size": 76251082,
+          "sha256": "791f09fe5ff5190a56703cdf0101d905b305000f90fcd5bdb8eec149edd9665a",
+          "minOSVersion": "13.0"
+        },
+        {
           "version": "2.0.4",
           "buildVersion": "19",
           "date": "2026-07-10",

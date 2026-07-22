@@ -29,6 +29,16 @@
       },
       "versions": [
         {
+          "version": "2.0.5",
+          "buildVersion": "20",
+          "date": "2026-07-22",
+          "localizedDescription": "Stremio 2.0.5 (build 20).",
+          "downloadURL": "https://dl.strem.io/apple/2.0.5b20/tvos/stremio_tvOS.ipa",
+          "size": 73987005,
+          "sha256": "f429fa518a027cac7f1667cd836629ecddd832ba33ee00baa17a2e28aa6a3801",
+          "minOSVersion": "13.0"
+        },
+        {
           "version": "2.0.3",
           "buildVersion": "18",
           "date": "2026-07-09",

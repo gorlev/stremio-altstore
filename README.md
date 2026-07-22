@@ -2,8 +2,8 @@
 
 [![Update source](https://github.com/gorlev/stremio-altstore/actions/workflows/update.yml/badge.svg)](https://github.com/gorlev/stremio-altstore/actions/workflows/update.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Stremio iOS versions](https://img.shields.io/badge/iOS-9%20versions-7055D9)](stremio-ios.json)
-[![Stremio tvOS versions](https://img.shields.io/badge/tvOS-5%20versions-7055D9)](stremio-tvos.json)
+[![Stremio iOS versions](https://img.shields.io/badge/iOS-10%20versions-7055D9)](stremio-ios.json)
+[![Stremio tvOS versions](https://img.shields.io/badge/tvOS-6%20versions-7055D9)](stremio-tvos.json)
 
 An **unofficial** AltStore-format source collection for Stremio iOS and tvOS, compatible with any signing app that consumes the standard AltStore source format — Feather, AltStore Classic, AltStore PAL, ESign, Scarlet, Sideloadly, and others. Stremio's official source at [`dl.strem.io/apple/altstore/source.json`](https://dl.strem.io/apple/altstore/source.json) cannot be parsed by most third-party signing apps because it uses Apple's encrypted App Store Connect manifest format — this repo publishes standard AltStore-format JSON sources that point to Stremio's plain IPA artifacts.
 
@@ -136,6 +136,7 @@ Prefer to run your own source (own URL, own update schedule)? Fork and host it i
 
 | Version | Build | Date | Size | Download |
 |---|---|---|---|---|
+| 2.0.5 | 20 | 2026-07-22 | 72 MB | [IPA](https://dl.strem.io/apple/2.0.5b20/ios/stremio_iOS.ipa) |
 | 2.0.4 | 19 | 2026-07-10 | 72 MB | [IPA](https://dl.strem.io/apple/2.0.4b19/ios/stremio_iOS.ipa) |
 | 2.0.3 | 18 | 2026-07-09 | 72 MB | [IPA](https://dl.strem.io/apple/2.0.3b18/ios/stremio_iOS.ipa) |
 | 2.0.2 | 17 | 2026-06-19 | 74 MB | [IPA](https://dl.strem.io/apple/2.0.2b17/ios/stremio_iOS.ipa) |
@@ -157,6 +158,7 @@ Prefer to run your own source (own URL, own update schedule)? Fork and host it i
 
 | Version | Build | Date | Size | Download |
 |---|---|---|---|---|
+| 2.0.5 | 20 | 2026-07-22 | 70 MB | [IPA](https://dl.strem.io/apple/2.0.5b20/tvos/stremio_tvOS.ipa) |
 | 2.0.3 | 18 | 2026-07-09 | 70 MB | [IPA](https://dl.strem.io/apple/2.0.3b18/tvos/stremio_tvOS.ipa) |
 | 2.0.2 | 17 | 2026-06-19 | 70 MB | [IPA](https://dl.strem.io/apple/2.0.2b17/tvos/stremio_tvOS.ipa) |
 | 2.0.1 | 16 | 2026-06-16 | 70 MB | [IPA](https://dl.strem.io/apple/2.0.1b16/tvos/stremio_tvOS.ipa) |
