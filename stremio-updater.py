@@ -81,6 +81,36 @@ def parse_http_date(s: str) -> str:
     return ""
 
 
+def next_semver_candidates(known_semvers: set[str], *, patch_ahead: int = 4) -> set[str]:
+    """
+    Derive plausible future semvers from the known ones instead of a
+    hardcoded list (a stale hardcoded list silently missed 2.0.6b21: the
+    scanner never probed a version nobody had written down).
+
+    For the highest known version of each major line, probe the next few
+    patches (Z+1..Z+patch_ahead), the next minor (Y+1 with .0/.1), and the
+    next major (X+1.0.0). Anchoring at the per-major maximum keeps the
+    probe count low while making every successive release reachable.
+    """
+    per_major: dict[int, tuple[int, int, int]] = {}
+    for s in known_semvers:
+        try:
+            x, y, z = (int(p) for p in s.split("."))
+        except ValueError:
+            continue
+        if x not in per_major or (y, z) > per_major[x][1:]:
+            per_major[x] = (x, y, z)
+
+    cands: set[str] = set()
+    for x, y, z in per_major.values():
+        for dz in range(1, patch_ahead + 1):
+            cands.add(f"{x}.{y}.{z + dz}")
+        cands.add(f"{x}.{y + 1}.0")
+        cands.add(f"{x}.{y + 1}.1")
+        cands.add(f"{x + 1}.0.0")
+    return cands
+
+
 def scan_cdn(known_tags: Iterable[str], *, verbose: bool = False, max_workers: int = 16) -> dict[str, dict[str, dict]]:
     """
     Scans the CDN in parallel. Tries the last known build + buffer range.
@@ -95,9 +125,10 @@ def scan_cdn(known_tags: Iterable[str], *, verbose: bool = False, max_workers: i
             max_build = max(max_build, pv[1])
             known_semvers.add(pv[0])
 
-    # Most likely major.minor values: known + a few plausible next ones
-    next_candidates = ["2.0.3", "2.1.0", "2.1.1", "1.3.7", "1.4.0", "2.0.4", "2.0.5"]
-    semvers = list(known_semvers | set(next_candidates))
+    # Known versions + algorithmically derived next candidates
+    semvers = list(known_semvers | next_semver_candidates(known_semvers))
+    if verbose:
+        print(f"  [scan] probing semvers: {', '.join(sorted(semvers))}")
 
     # Scan only the last known build + buffer range (new releases are rare)
     build_range = range(max_build, max_build + 8)
