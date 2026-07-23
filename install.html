@@ -3,167 +3,365 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="light dark" />
-  <title>Add Stremio to your signing app</title>
-  <meta name="description" content="One-tap install for the unofficial Stremio AltStore source (iOS, iPadOS, tvOS)." />
+  <title>Stremio — Unofficial AltStore Source</title>
+  <meta name="description" content="Sideload Stremio on iPhone, iPad and Apple TV. One-tap source for AltStore and SideStore, auto-updated every 6 hours." />
+  <meta name="theme-color" content="#0c0b12" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%BF%3C/text%3E%3C/svg%3E" />
   <style>
     :root {
-      --accent: #7b5bf5;
-      --accent-2: #9d7bff;
-      --bg: #f5f5f8;
-      --card: #ffffff;
-      --text: #16161d;
-      --muted: #5c5c6b;
-      --border: #e3e3ec;
-      --code-bg: #f0f0f5;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0f0f14;
-        --card: #1a1a22;
-        --text: #f2f2f7;
-        --muted: #9a9aac;
-        --border: #2a2a36;
-        --code-bg: #23232e;
-      }
+      --purple: #7055d9;
+      --purple-hi: #9b83ff;
+      --bg: #0c0b12;
+      --panel: #14121e;
+      --panel-2: #191627;
+      --line: #262336;
+      --text: #f0eef8;
+      --dim: #9b96b0;
+      --faint: #6c6784;
+      --good: #3ecf8e;
+      --radius: 18px;
     }
     * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
       background: var(--bg);
       color: var(--text);
-      line-height: 1.5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.55;
       -webkit-font-smoothing: antialiased;
-      padding: 24px 16px 48px;
+      /* cinematic backdrop: two soft purple glows on near-black */
+      background-image:
+        radial-gradient(900px 420px at 85% -10%, rgba(112, 85, 217, .22), transparent 60%),
+        radial-gradient(700px 380px at -10% 30%, rgba(112, 85, 217, .12), transparent 60%);
+      background-repeat: no-repeat;
     }
-    .wrap { max-width: 560px; margin: 0 auto; }
-    header { text-align: center; margin-bottom: 28px; }
-    .logo { font-size: 44px; line-height: 1; }
-    h1 { font-size: 24px; margin: 12px 0 6px; letter-spacing: -0.02em; }
-    header p { color: var(--muted); margin: 0; font-size: 15px; }
-    .badge-unofficial {
-      display: inline-block; margin-top: 10px; font-size: 12px; font-weight: 600;
-      color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent);
-      padding: 3px 10px; border-radius: 999px;
+    .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px 64px; }
+
+    /* ---------- header ---------- */
+    header.top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 0 0;
     }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -.01em; }
+    .brand .dot {
+      width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--purple), #4a35a8);
+      font-size: 18px;
+    }
+    .gh {
+      color: var(--dim); text-decoration: none; font-size: 14px; font-weight: 600;
+      border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px;
+      transition: color .15s, border-color .15s;
+    }
+    .gh:hover { color: var(--text); border-color: var(--purple); }
+
+    /* ---------- hero ---------- */
+    .hero { padding: 64px 0 40px; max-width: 640px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 12.5px; font-weight: 600; color: var(--purple-hi);
+      border: 1px solid rgba(112, 85, 217, .45); border-radius: 999px;
+      padding: 5px 12px; margin-bottom: 18px;
+      background: rgba(112, 85, 217, .08);
+    }
+    .badge .pulse {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--good);
+      box-shadow: 0 0 0 0 rgba(62, 207, 142, .6); animation: pulse 2.4s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(62, 207, 142, .5); }
+      70% { box-shadow: 0 0 0 8px rgba(62, 207, 142, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(62, 207, 142, 0); }
+    }
+    h1 {
+      font-size: clamp(34px, 6vw, 52px); line-height: 1.08;
+      letter-spacing: -.03em; margin: 0 0 16px; font-weight: 800;
+    }
+    h1 .tint { color: var(--purple-hi); }
+    .hero p { color: var(--dim); font-size: 17px; margin: 0; }
+
+    /* ---------- platform cards ---------- */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 34px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
     .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 18px;
+      background: linear-gradient(180deg, var(--panel-2), var(--panel));
+      border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 24px; display: flex; flex-direction: column; gap: 16px;
     }
-    .card h2 { font-size: 17px; margin: 0 0 2px; }
-    .card .sub { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
-    .url-row {
-      display: flex; gap: 8px; align-items: stretch; margin-bottom: 14px;
+    .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .card h2 { font-size: 19px; margin: 0; letter-spacing: -.01em; }
+    .meta { color: var(--faint); font-size: 12.5px; white-space: nowrap; }
+    .latest {
+      display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+      padding: 14px 16px; border-radius: 12px;
+      background: rgba(112, 85, 217, .1); border: 1px solid rgba(112, 85, 217, .3);
     }
+    .latest .v { font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
+    .latest .sub { color: var(--dim); font-size: 13px; }
+    .urlrow { display: flex; gap: 8px; }
     .url {
-      flex: 1; min-width: 0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12.5px; background: var(--code-bg); border: 1px solid var(--border);
-      border-radius: 10px; padding: 10px 12px; color: var(--text);
-      overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;
+      flex: 1; min-width: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px; color: var(--dim);
+      background: #0f0d18; border: 1px solid var(--line); border-radius: 10px;
+      padding: 10px 12px; overflow-x: auto; white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
     }
     .copy {
-      flex: 0 0 auto; border: 1px solid var(--border); background: var(--code-bg);
-      color: var(--text); border-radius: 10px; padding: 0 14px; font-size: 13px;
-      font-weight: 600; cursor: pointer; transition: background .15s, color .15s;
+      flex: 0 0 auto; border: 1px solid var(--line); background: #0f0d18; color: var(--dim);
+      border-radius: 10px; padding: 0 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: all .15s;
     }
-    .copy:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .copy.done { background: #2e9c5a; color: #fff; border-color: #2e9c5a; }
-    .btns { display: flex; gap: 10px; flex-wrap: wrap; }
+    .copy:hover { color: #fff; border-color: var(--purple); }
+    .copy.done { background: var(--good); border-color: var(--good); color: #06251733; color: #052e1c; }
+    .btns { display: flex; gap: 10px; }
     .btn {
-      flex: 1 1 0; min-width: 140px; text-align: center; text-decoration: none;
-      font-weight: 650; font-size: 15px; padding: 13px 16px; border-radius: 12px;
-      color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      transition: transform .08s ease, filter .15s ease;
+      flex: 1; text-align: center; text-decoration: none; font-weight: 700; font-size: 14.5px;
+      padding: 13px 10px; border-radius: 12px; color: #fff;
+      background: linear-gradient(135deg, var(--purple), #5b41c4);
+      transition: filter .15s, transform .08s;
     }
+    .btn:hover { filter: brightness(1.12); }
     .btn:active { transform: translateY(1px); }
-    .btn:hover { filter: brightness(1.07); }
-    .btn.secondary {
-      background: transparent; color: var(--accent);
-      border: 1.5px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+    .btn.ghost {
+      background: transparent; color: var(--purple-hi);
+      border: 1px solid rgba(112, 85, 217, .5);
     }
-    .hint { color: var(--muted); font-size: 12.5px; margin: 14px 0 0; }
-    footer { text-align: center; color: var(--muted); font-size: 12.5px; margin-top: 30px; }
-    footer a { color: var(--accent); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
+    .hint { color: var(--faint); font-size: 12.5px; margin: 0; }
+    .hint strong { color: var(--dim); }
+
+    /* ---------- versions ---------- */
+    .versions { margin-top: 56px; }
+    .versions > h2 { font-size: 24px; letter-spacing: -.02em; margin: 0 0 6px; }
+    .versions > p { color: var(--dim); font-size: 14.5px; margin: 0 0 22px; }
+    .vgroup { margin-bottom: 26px; }
+    .vgroup h3 {
+      font-size: 13px; text-transform: uppercase; letter-spacing: .08em;
+      color: var(--faint); margin: 0 0 10px; font-weight: 700;
+    }
+    table.vt { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .vt-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); }
+    .vt th {
+      text-align: left; color: var(--faint); font-size: 11.5px; text-transform: uppercase;
+      letter-spacing: .07em; font-weight: 700; padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .vt td { padding: 12px 16px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    .vt tr:last-child td { border-bottom: none; }
+    .vt .ver { font-weight: 700; }
+    .chip {
+      display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .04em;
+      color: var(--good); border: 1px solid rgba(62, 207, 142, .4); border-radius: 999px;
+      padding: 1px 8px; margin-left: 8px; vertical-align: 1px;
+    }
+    .vt .dim { color: var(--dim); }
+    .vt a.dl { color: var(--purple-hi); text-decoration: none; font-weight: 600; }
+    .vt a.dl:hover { text-decoration: underline; }
+    .sha {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px;
+      color: var(--faint); cursor: pointer; border: none; background: none; padding: 0;
+    }
+    .sha:hover { color: var(--purple-hi); }
+    .sha.done { color: var(--good); }
+    .loading { color: var(--faint); font-size: 14px; padding: 18px; }
+
+    /* ---------- footer ---------- */
+    footer {
+      margin-top: 64px; padding-top: 26px; border-top: 1px solid var(--line);
+      color: var(--faint); font-size: 13px;
+    }
+    footer a { color: var(--dim); }
+    footer a:hover { color: var(--purple-hi); }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <header>
-      <div class="logo">🍿</div>
-      <h1>Add Stremio to your signing app</h1>
-      <p>One tap opens the source in AltStore or SideStore — already prefilled.</p>
-      <span class="badge-unofficial">Unofficial · community-maintained</span>
+    <header class="top">
+      <div class="brand"><span class="dot">🍿</span> stremio‑altstore</div>
+      <a class="gh" href="https://github.com/gorlev/stremio-altstore">GitHub ↗</a>
     </header>
 
-    <section class="card" id="ios">
-      <h2>Stremio for iPhone &amp; iPad</h2>
-      <p class="sub">iOS / iPadOS source · <code>com.stremio.pal</code></p>
-      <div class="url-row">
-        <div class="url" id="url-ios"></div>
-        <button class="copy" data-target="url-ios">Copy</button>
-      </div>
-      <div class="btns">
-        <a class="btn" id="alt-ios">Open in AltStore</a>
-        <a class="btn secondary" id="side-ios">Open in SideStore</a>
-      </div>
-      <p class="hint">Using Feather, ESign, Scarlet or another app? Copy the URL above and paste it into that app's <strong>Sources</strong> section.</p>
+    <section class="hero">
+      <span class="badge"><span class="pulse"></span> Auto-updated every 6 hours · unofficial</span>
+      <h1>Stremio,<br /><span class="tint">sideloaded.</span></h1>
+      <p>Movies and series on your iPhone, iPad and Apple TV — no App Store needed.
+         Add the source below to AltStore, SideStore, Feather or any signing app,
+         and every new Stremio release lands on your device automatically.</p>
     </section>
 
-    <section class="card" id="tvos">
-      <h2>Stremio for Apple TV</h2>
-      <p class="sub">tvOS source · <code>com.stremio.pal</code></p>
-      <div class="url-row">
-        <div class="url" id="url-tvos"></div>
-        <button class="copy" data-target="url-tvos">Copy</button>
-      </div>
-      <div class="btns">
-        <a class="btn" id="alt-tvos">Open in AltStore</a>
-        <a class="btn secondary" id="side-tvos">Open in SideStore</a>
-      </div>
-      <p class="hint">On Apple TV, most people add the URL manually in their signing app — copy it above.</p>
+    <div class="grid">
+      <section class="card" id="card-ios">
+        <div class="card-head">
+          <h2>📱 iPhone &amp; iPad</h2>
+          <span class="meta" id="meta-ios">…</span>
+        </div>
+        <div class="latest">
+          <span class="v" id="latest-ios">—</span>
+          <span class="sub" id="latest-ios-sub"></span>
+        </div>
+        <div class="urlrow">
+          <div class="url" id="url-ios"></div>
+          <button class="copy" data-copy="url-ios">Copy</button>
+        </div>
+        <div class="btns">
+          <a class="btn" id="alt-ios">Add to AltStore</a>
+          <a class="btn ghost" id="side-ios">SideStore</a>
+        </div>
+        <p class="hint"><strong>Feather, ESign, Scarlet?</strong> Copy the URL above into your app's Sources section.</p>
+      </section>
+
+      <section class="card" id="card-tvos">
+        <div class="card-head">
+          <h2>📺 Apple TV</h2>
+          <span class="meta" id="meta-tvos">…</span>
+        </div>
+        <div class="latest">
+          <span class="v" id="latest-tvos">—</span>
+          <span class="sub" id="latest-tvos-sub"></span>
+        </div>
+        <div class="urlrow">
+          <div class="url" id="url-tvos"></div>
+          <button class="copy" data-copy="url-tvos">Copy</button>
+        </div>
+        <div class="btns">
+          <a class="btn" id="alt-tvos">Add to AltStore</a>
+          <a class="btn ghost" id="side-tvos">SideStore</a>
+        </div>
+        <p class="hint"><strong>On the TV itself?</strong> Type the URL into your signing app manually — copy it here first.</p>
+      </section>
+    </div>
+
+    <section class="versions">
+      <h2>Every release, verified</h2>
+      <p>Loaded live from the source JSON. Each IPA links straight to Stremio's own CDN;
+         hashes are SHA‑256, computed by this repo's pipeline — tap one to copy it.</p>
+      <div id="version-groups"><div class="loading">Loading versions…</div></div>
     </section>
 
     <footer>
-      <p>Not affiliated with Stremio or SmartCode OOD.<br />
-      <a href="https://github.com/gorlev/stremio-altstore">View the source repo &amp; all versions →</a></p>
+      <p>Unofficial community project — not affiliated with Stremio or SmartCode OOD.
+         IPAs are served by Stremio's public CDN (<code>dl.strem.io</code>); this repo only publishes metadata.<br />
+         Apps signed with a free Apple ID expire after 7 days.
+         <a href="https://github.com/gorlev/stremio-altstore">Source &amp; issues on GitHub</a>.</p>
     </footer>
   </div>
 
   <script>
     var BASE = "https://gorlev.github.io/stremio-altstore/";
-    var SOURCES = {
-      ios:  BASE + "stremio-ios.json",
-      tvos: BASE + "stremio-tvos.json"
-    };
-    Object.keys(SOURCES).forEach(function (k) {
-      var url = SOURCES[k];
-      var enc = encodeURIComponent(url);
-      document.getElementById("url-" + k).textContent = url;
-      document.getElementById("alt-" + k).href = "altstore://source?url=" + enc;
-      document.getElementById("side-" + k).href = "sidestore://source?url=" + enc;
-    });
-    document.querySelectorAll(".copy").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var text = document.getElementById(btn.dataset.target).textContent;
+    var PLATFORMS = [
+      { key: "ios",  json: "stremio-ios.json",  label: "iOS / iPadOS" },
+      { key: "tvos", json: "stremio-tvos.json", label: "Apple TV" }
+    ];
+
+    function fmtMB(bytes) {
+      return bytes > 0 ? (bytes / 1048576).toFixed(1) + " MB" : "—";
+    }
+    function fmtDate(iso) {
+      if (!iso) return "—";
+      var d = new Date(iso + "T00:00:00Z");
+      return isNaN(d) ? iso : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    }
+    function bindCopy(el, getText) {
+      el.addEventListener("click", function () {
+        var t = getText();
         var done = function () {
-          btn.textContent = "Copied";
-          btn.classList.add("done");
-          setTimeout(function () { btn.textContent = "Copy"; btn.classList.remove("done"); }, 1600);
+          el.classList.add("done");
+          var old = el.dataset.label || el.textContent;
+          el.dataset.label = old;
+          el.textContent = el.classList.contains("sha") ? "copied!" : "Copied";
+          setTimeout(function () { el.textContent = el.dataset.label; el.classList.remove("done"); }, 1500);
         };
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(done, done);
-        } else {
-          var r = document.createRange(); r.selectNode(document.getElementById(btn.dataset.target));
-          var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
-          try { document.execCommand("copy"); } catch (e) {}
-          s.removeAllRanges(); done();
-        }
+          navigator.clipboard.writeText(t).then(done, done);
+        } else { done(); }
       });
+    }
+
+    // Static wiring (works even if the fetch below fails)
+    PLATFORMS.forEach(function (p) {
+      var url = BASE + p.json, enc = encodeURIComponent(url);
+      document.getElementById("url-" + p.key).textContent = url;
+      document.getElementById("alt-" + p.key).href = "altstore://source?url=" + enc;
+      document.getElementById("side-" + p.key).href = "sidestore://source?url=" + enc;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".copy"), function (btn) {
+      bindCopy(btn, function () { return document.getElementById(btn.dataset.copy).textContent; });
+    });
+
+    // Live data
+    var groupsEl = document.getElementById("version-groups");
+    Promise.all(PLATFORMS.map(function (p) {
+      return fetch(p.json, { cache: "no-cache" }).then(function (r) { return r.json(); })
+        .then(function (d) { return { plat: p, data: d }; })
+        .catch(function () { return { plat: p, data: null }; });
+    })).then(function (results) {
+      groupsEl.innerHTML = "";
+      results.forEach(function (res) {
+        var p = res.plat, d = res.data;
+        if (!d) {
+          document.getElementById("meta-" + p.key).textContent = "";
+          return;
+        }
+        var apps = d.apps || [];
+        var all = [];
+        apps.forEach(function (a) {
+          (a.versions || []).forEach(function (v) { all.push({ app: a, v: v }); });
+        });
+        // newest first across apps
+        all.sort(function (x, y) {
+          var pk = function (e) {
+            return (e.v.version || "").split(".").map(function (n) { return +n || 0; })
+              .concat([+(e.v.buildVersion || 0)]);
+          };
+          var a = pk(x), b = pk(y);
+          for (var i = 0; i < Math.max(a.length, b.length); i++) {
+            if ((b[i] || 0) !== (a[i] || 0)) return (b[i] || 0) - (a[i] || 0);
+          }
+          return 0;
+        });
+
+        // hero card: latest + meta
+        if (all.length) {
+          var top = all[0];
+          document.getElementById("latest-" + p.key).textContent = "v" + top.v.version;
+          document.getElementById("latest-" + p.key + "-sub").textContent =
+            "build " + top.v.buildVersion + " · " + fmtDate(top.v.date) + " · " + fmtMB(top.v.size);
+          document.getElementById("meta-" + p.key).textContent =
+            all.length + " releases · updated " + fmtDate(top.v.date);
+        }
+
+        // versions table
+        var g = document.createElement("div");
+        g.className = "vgroup";
+        g.innerHTML = "<h3>" + p.label + "</h3>";
+        var scroll = document.createElement("div");
+        scroll.className = "vt-scroll";
+        var t = document.createElement("table");
+        t.className = "vt";
+        t.innerHTML = "<thead><tr><th>Version</th><th>App</th><th>Date</th><th>Size</th><th>SHA-256</th><th></th></tr></thead>";
+        var tb = document.createElement("tbody");
+        all.forEach(function (e, i) {
+          var tr = document.createElement("tr");
+          var sha = e.v.sha256 || "";
+          tr.innerHTML =
+            "<td class='ver'>v" + e.v.version + " <span class='dim'>b" + e.v.buildVersion + "</span>" +
+              (i === 0 ? "<span class='chip'>LATEST</span>" : "") + "</td>" +
+            "<td class='dim'>" + (e.app.name || "") + "</td>" +
+            "<td class='dim'>" + fmtDate(e.v.date) + "</td>" +
+            "<td class='dim'>" + fmtMB(e.v.size) + "</td>" +
+            "<td>" + (sha ? "<button class='sha' title='Copy full hash'>" + sha.slice(0, 10) + "…</button>" : "<span class='dim'>—</span>") + "</td>" +
+            "<td><a class='dl' href='" + e.v.downloadURL + "'>IPA ↓</a></td>";
+          if (sha) bindCopy(tr.querySelector(".sha"), function () { return sha; });
+          tb.appendChild(tr);
+        });
+        t.appendChild(tb);
+        scroll.appendChild(t);
+        g.appendChild(scroll);
+        groupsEl.appendChild(g);
+      });
+      if (!groupsEl.children.length) {
+        groupsEl.innerHTML = "<div class='loading'>Couldn't load version data — view the JSON files on GitHub instead.</div>";
+      }
     });
   </script>
 </body>
