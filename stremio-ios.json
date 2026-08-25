@@ -58,6 +58,16 @@
       },
       "versions": [
         {
+          "version": "2.0.7",
+          "buildVersion": "22",
+          "date": "2026-08-24",
+          "localizedDescription": "feat: add download Live Activities on iOS 16.2 and later\nfeat: add in-app storage management for reviewing and clearing cached data\nfeat: add subtitle Live Sync for quickly correcting subtitle timing\nfeat: scroll to the top when the active tab is tapped again\nfeat: add gradient fade edges to the profile picker\nfix: correct toast positioning\nfix: refresh content correctly after selecting a profile\nfix: prevent Discover crashes and resolve the “See All” loading race condition\nfix: prevent downloads from becoming stuck in a frozen state\nfix: resume interrupted downloads when selecting “Retry”\nfix: open the offline copy when a downloaded video URL is selected\nfix: warn when hardware decoding is unavailable and software decoding is used\nfix: correct subtitle offset behavior\nfix: detect external displays when the app initially launches\nfix: hide video content from app-switcher snapshots\nfix: make play and pause respond immediately when the controls are hidden\nfix: improve KSPlayer playback of high-bitrate content\n\n### About Live Activities\n\nDownload Live Activities require iOS 16.2 or later. Due to iOS background-execution restrictions, live progress reporting may pause around 30 seconds after the app enters the background. The download will continue, and the Live Activity will update when it completes or fails.\n\nA future update is planned to support background torrent downloading on iOS 26 and later. On older iOS versions, opening a video in Picture in Picture can keep the app running while a download continues.",
+          "downloadURL": "https://dl.strem.io/apple/2.0.7b22/ios/stremio_iOS.ipa",
+          "size": 78704513,
+          "sha256": "cddfe220ce1f0c3befaf29eff9d7c3fe9cdb737bbac4353468169ba0d28b2c0f",
+          "minOSVersion": "13.0"
+        },
+        {
           "version": "2.0.6",
           "buildVersion": "21",
           "date": "2026-07-22",
@@ -158,11 +168,11 @@
           "minOSVersion": "13.0"
         }
       ],
-      "version": "2.0.6",
-      "versionDate": "2026-07-22",
-      "versionDescription": "feat: new desktop like UI for player and navigation on iPadOS",
-      "downloadURL": "https://dl.strem.io/apple/2.0.6b21/ios/stremio_iOS.ipa",
-      "size": 75942223,
+      "version": "2.0.7",
+      "versionDate": "2026-08-24",
+      "versionDescription": "feat: add download Live Activities on iOS 16.2 and later\nfeat: add in-app storage management for reviewing and clearing cached data\nfeat: add subtitle Live Sync for quickly correcting subtitle timing\nfeat: scroll to the top when the active tab is tapped again\nfeat: add gradient fade edges to the profile picker\nfix: correct toast positioning\nfix: refresh content correctly after selecting a profile\nfix: prevent Discover crashes and resolve the “See All” loading race condition\nfix: prevent downloads from becoming stuck in a frozen state\nfix: resume interrupted downloads when selecting “Retry”\nfix: open the offline copy when a downloaded video URL is selected\nfix: warn when hardware decoding is unavailable and software decoding is used\nfix: correct subtitle offset behavior\nfix: detect external displays when the app initially launches\nfix: hide video content from app-switcher snapshots\nfix: make play and pause respond immediately when the controls are hidden\nfix: improve KSPlayer playback of high-bitrate content\n\n### About Live Activities\n\nDownload Live Activities require iOS 16.2 or later. Due to iOS background-execution restrictions, live progress reporting may pause around 30 seconds after the app enters the background. The download will continue, and the Live Activity will update when it completes or fails.\n\nA future update is planned to support background torrent downloading on iOS 26 and later. On older iOS versions, opening a video in Picture in Picture can keep the app running while a download continues.",
+      "downloadURL": "https://dl.strem.io/apple/2.0.7b22/ios/stremio_iOS.ipa",
+      "size": 78704513,
       "minOSVersion": "13.0",
       "screenshotURLs": [
         "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/6a/ee/19/6aee194d-7b33-aaab-b3bf-64b9773e6120/login.png/1242x2688ss.jpg",
@@ -177,6 +187,16 @@
     }
   ],
   "news": [
+    {
+      "title": "Stremio 2.0.7",
+      "identifier": "com-stremio-pal-2-0-7-b22-iphone-ipad",
+      "caption": "feat: add download Live Activities on iOS 16.2 and later",
+      "tintColor": "7055D9",
+      "date": "2026-08-24",
+      "notify": true,
+      "appID": "com.stremio.pal",
+      "imageURL": "https://www.stremio.com/website/stremio-logo-small.png"
+    },
     {
       "title": "Stremio 2.0.6",
       "identifier": "com-stremio-pal-2-0-6-b21-iphone-ipad",
