@@ -114,7 +114,7 @@
       "caption": "feat: add download Live Activities on iOS 16.2 and later",
       "tintColor": "7055D9",
       "date": "2026-08-24",
-      "notify": true,
+      "notify": false,
       "appID": "com.stremio.pal",
       "imageURL": "https://www.stremio.com/website/stremio-logo-small.png"
     },
