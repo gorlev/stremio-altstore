@@ -61,7 +61,7 @@
           "version": "2.0.8",
           "buildVersion": "23",
           "date": "2026-09-10",
-          "localizedDescription": "Stremio 2.0.8 (build 23).",
+          "localizedDescription": "feat: Added P2P/torrent downloads with improved persistence and restoration.\nfeat: Added download exporting and sharing with external apps.\nfeat: Added quick access to Downloads from the profile picker.\nfeat: Added live torrent statistics for peers, download speed, and completion.\nfeat: Added vertical swipe controls for brightness and volume.\nfeat: Added visual feedback for double-tap seeking.\nfeat: Added support for Gravatar profile pictures.\nfeat: Added Cinemeta configuration for eligible profiles.\nfeat: Added streaming server cache size and torrent performance settings.\nfeat: Added warnings when system configuration may limit download functionality.\nfix: Fixed tap-to-open and pause actions in Download Live Activities on iOS 17.0 and 17.1.\nfix: Continue Watching now starts playback directly at the saved position instead of seeking twice.\nfix: Fixed automatic subtitle selection and ensured subtitles refresh correctly when switching episodes.\nfix: Fixed a KSPlayer crash when leaving playback on iOS 15 and macOS 12.\nfix: Fixed the bottom navigation bar remaining visible on iOS 17 and earlier.\nfix: Fixed playback when opening videos from Downloads or deep links.\nfix: Improved player startup and local streaming server reliability.\nfix: Improved Picture in Picture compatibility on macOS 27.\n\nWith the release of iOS 27 and Xcode 27, support for macOS 11 and iOS 14 or earlier is no longer possible. iOS 15 and macOS 12 will become the minimum supported versions when support for iPhone Duo begins.",
           "downloadURL": "https://dl.strem.io/apple/2.0.8b23/ios/stremio_iOS.ipa",
           "size": 78506200,
           "sha256": "a98c31059825132e64b5ef73e9fd525411803d437f1920a0da73633ebd6d8319",
@@ -180,7 +180,7 @@
       ],
       "version": "2.0.8",
       "versionDate": "2026-09-10",
-      "versionDescription": "Stremio 2.0.8 (build 23).",
+      "versionDescription": "feat: Added P2P/torrent downloads with improved persistence and restoration.\nfeat: Added download exporting and sharing with external apps.\nfeat: Added quick access to Downloads from the profile picker.\nfeat: Added live torrent statistics for peers, download speed, and completion.\nfeat: Added vertical swipe controls for brightness and volume.\nfeat: Added visual feedback for double-tap seeking.\nfeat: Added support for Gravatar profile pictures.\nfeat: Added Cinemeta configuration for eligible profiles.\nfeat: Added streaming server cache size and torrent performance settings.\nfeat: Added warnings when system configuration may limit download functionality.\nfix: Fixed tap-to-open and pause actions in Download Live Activities on iOS 17.0 and 17.1.\nfix: Continue Watching now starts playback directly at the saved position instead of seeking twice.\nfix: Fixed automatic subtitle selection and ensured subtitles refresh correctly when switching episodes.\nfix: Fixed a KSPlayer crash when leaving playback on iOS 15 and macOS 12.\nfix: Fixed the bottom navigation bar remaining visible on iOS 17 and earlier.\nfix: Fixed playback when opening videos from Downloads or deep links.\nfix: Improved player startup and local streaming server reliability.\nfix: Improved Picture in Picture compatibility on macOS 27.\n\nWith the release of iOS 27 and Xcode 27, support for macOS 11 and iOS 14 or earlier is no longer possible. iOS 15 and macOS 12 will become the minimum supported versions when support for iPhone Duo begins.",
       "downloadURL": "https://dl.strem.io/apple/2.0.8b23/ios/stremio_iOS.ipa",
       "size": 78506200,
       "minOSVersion": "13.0",
@@ -197,6 +197,16 @@
     }
   ],
   "news": [
+    {
+      "title": "Stremio 2.0.8",
+      "identifier": "com-stremio-pal-2-0-8-b23-iphone-ipad",
+      "caption": "feat: Added P2P/torrent downloads with improved persistence and restoration.",
+      "tintColor": "7055D9",
+      "date": "2026-09-10",
+      "notify": true,
+      "appID": "com.stremio.pal",
+      "imageURL": "https://www.stremio.com/website/stremio-logo-small.png"
+    },
     {
       "title": "Stremio 2.0.7",
       "identifier": "com-stremio-pal-2-0-7-b22-iphone-ipad",
