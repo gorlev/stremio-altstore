@@ -2,7 +2,7 @@
 
 [![Update source](https://github.com/gorlev/stremio-altstore/actions/workflows/update.yml/badge.svg)](https://github.com/gorlev/stremio-altstore/actions/workflows/update.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Stremio iOS versions](https://img.shields.io/badge/iOS-13%20versions-7055D9)](stremio-ios.json)
+[![Stremio iOS versions](https://img.shields.io/badge/iOS-12%20versions-7055D9)](stremio-ios.json)
 [![Stremio tvOS versions](https://img.shields.io/badge/tvOS-9%20versions-7055D9)](stremio-tvos.json)
 
 An **unofficial** AltStore-format source collection for Stremio iOS and tvOS, compatible with any signing app that consumes the standard AltStore source format — Feather, AltStore Classic, AltStore PAL, ESign, Scarlet, Sideloadly, and others. Stremio's official source at [`dl.strem.io/apple/altstore/source.json`](https://dl.strem.io/apple/altstore/source.json) cannot be parsed by most third-party signing apps because it uses Apple's encrypted App Store Connect manifest format — this repo publishes standard AltStore-format JSON sources that point to Stremio's plain IPA artifacts.
@@ -148,7 +148,6 @@ Prefer to run your own source (own URL, own update schedule)? Fork and host it i
 | 2.0.1 | 15 | 2026-06-15 | 74.1 MB | [IPA](https://dl.strem.io/apple/2.0.1b15/ios/stremio_iOS.ipa) |
 | 2.0.0 | 14 | 2026-06-05 | 74.4 MB | [IPA](https://dl.strem.io/apple/2.0.0b14/ios/stremio_iOS.ipa) |
 | 2.0.0 | 13 | 2026-06-05 | 74.1 MB | [IPA](https://dl.strem.io/apple/2.0.0b13/ios/stremio_iOS.ipa) |
-| 2.0.0 | 11 | 2026-05-30 | 74.4 MB | [IPA](https://dl.strem.io/apple/2.0.0b11/ios/stremio_iOS.ipa) |
 
 ### tvOS — `stremio-tvos.json`
 
