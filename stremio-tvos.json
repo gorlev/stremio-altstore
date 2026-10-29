@@ -134,7 +134,7 @@
       "caption": "New",
       "tintColor": "7055D9",
       "date": "2026-10-21",
-      "notify": true,
+      "notify": false,
       "appID": "com.stremio.pal",
       "imageURL": "https://www.stremio.com/website/stremio-logo-small.png"
     },
