@@ -61,7 +61,7 @@
           "version": "2.1.1",
           "buildVersion": "25",
           "date": "2026-10-31",
-          "localizedDescription": "Stremio 2.1.1 (build 25).",
+          "localizedDescription": "New\n\n- Playback speed is now remembered separately for each stream.\n- Selected audio and subtitle tracks are remembered for each stream, including when subtitles are turned off.\n- Subtitle delay is remembered for each stream, and Live Sync changes apply immediately.\n- External subtitles can now be moved vertically with a position control.\n\nRedesigned\n\n- Add-on cards on iOS and macOS now have a cleaner layout with clearer actions.\n- The add-on installation flow now opens as a content-sized sheet with an improved layout and clearer trust information.\n\nImprovements\n\n- Infuse playback progress now syncs back to Stremio.\n- Player controls better respect safe areas, camera regions and different screen layouts.\n- Subtitles no longer overlap playback buttons.\n- Torrent status no longer conflicts with the title, while loading statistics remain correctly positioned.\n\nFixes\n\n- Fixed the player hanging when opened on iOS 15.\n- Fixed the play button remaining hidden after seeking.\n- The F key now toggles fullscreen on Mac.\n- Fixed ASS subtitles not rendering correctly in KSPlayer.\n- Fixed player filter and dropdown buttons sometimes ignoring taps.\n- Fixed title-preview actions being compressed and removed unnecessary spacing when filters are hidden.\n- Fixed add-ons showing an incorrect protected warning after being uninstalled.\n- Fixed loading torrent statistics appearing in the wrong position.\n- Fixed profile PIN errors disappearing too quickly; the error now remains until the next input.\n- Capitalized add-on types when a translation is unavailable.",
           "downloadURL": "https://dl.strem.io/apple/2.1.1b25/ios/stremio_iOS.ipa",
           "size": 84752072,
           "sha256": "1182428e8ba369e7f048fa1651b374a49ff6801e8f35350d0f95d78a41a067d6",
@@ -180,7 +180,7 @@
       ],
       "version": "2.1.1",
       "versionDate": "2026-10-31",
-      "versionDescription": "Stremio 2.1.1 (build 25).",
+      "versionDescription": "New\n\n- Playback speed is now remembered separately for each stream.\n- Selected audio and subtitle tracks are remembered for each stream, including when subtitles are turned off.\n- Subtitle delay is remembered for each stream, and Live Sync changes apply immediately.\n- External subtitles can now be moved vertically with a position control.\n\nRedesigned\n\n- Add-on cards on iOS and macOS now have a cleaner layout with clearer actions.\n- The add-on installation flow now opens as a content-sized sheet with an improved layout and clearer trust information.\n\nImprovements\n\n- Infuse playback progress now syncs back to Stremio.\n- Player controls better respect safe areas, camera regions and different screen layouts.\n- Subtitles no longer overlap playback buttons.\n- Torrent status no longer conflicts with the title, while loading statistics remain correctly positioned.\n\nFixes\n\n- Fixed the player hanging when opened on iOS 15.\n- Fixed the play button remaining hidden after seeking.\n- The F key now toggles fullscreen on Mac.\n- Fixed ASS subtitles not rendering correctly in KSPlayer.\n- Fixed player filter and dropdown buttons sometimes ignoring taps.\n- Fixed title-preview actions being compressed and removed unnecessary spacing when filters are hidden.\n- Fixed add-ons showing an incorrect protected warning after being uninstalled.\n- Fixed loading torrent statistics appearing in the wrong position.\n- Fixed profile PIN errors disappearing too quickly; the error now remains until the next input.\n- Capitalized add-on types when a translation is unavailable.",
       "downloadURL": "https://dl.strem.io/apple/2.1.1b25/ios/stremio_iOS.ipa",
       "size": 84752072,
       "minOSVersion": "15.0",
@@ -197,6 +197,16 @@
     }
   ],
   "news": [
+    {
+      "title": "Stremio 2.1.1",
+      "identifier": "com-stremio-pal-2-1-1-b25-iphone-ipad",
+      "caption": "New",
+      "tintColor": "7055D9",
+      "date": "2026-10-31",
+      "notify": true,
+      "appID": "com.stremio.pal",
+      "imageURL": "https://www.stremio.com/website/stremio-logo-small.png"
+    },
     {
       "title": "Stremio 2.1.0",
       "identifier": "com-stremio-pal-2-1-0-b24-iphone-ipad",
