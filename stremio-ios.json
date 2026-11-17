@@ -58,6 +58,16 @@
       },
       "versions": [
         {
+          "version": "2.1.2",
+          "buildVersion": "27",
+          "date": "2026-11-17",
+          "localizedDescription": "Stremio 2.1.2 (build 27).",
+          "downloadURL": "https://dl.strem.io/apple/2.1.2b27/ios/stremio_iOS.ipa",
+          "size": 88256855,
+          "sha256": "6e4126bc1afeaf5bb9abd97c230a341e2eecf26e37b0ed41ce5b5852e39bd37a",
+          "minOSVersion": "15.0"
+        },
+        {
           "version": "2.1.1",
           "buildVersion": "25",
           "date": "2026-10-31",
@@ -178,11 +188,11 @@
           "minOSVersion": "13.0"
         }
       ],
-      "version": "2.1.1",
-      "versionDate": "2026-10-31",
-      "versionDescription": "New\n\n- Playback speed is now remembered separately for each stream.\n- Selected audio and subtitle tracks are remembered for each stream, including when subtitles are turned off.\n- Subtitle delay is remembered for each stream, and Live Sync changes apply immediately.\n- External subtitles can now be moved vertically with a position control.\n\nRedesigned\n\n- Add-on cards on iOS and macOS now have a cleaner layout with clearer actions.\n- The add-on installation flow now opens as a content-sized sheet with an improved layout and clearer trust information.\n\nImprovements\n\n- Infuse playback progress now syncs back to Stremio.\n- Player controls better respect safe areas, camera regions and different screen layouts.\n- Subtitles no longer overlap playback buttons.\n- Torrent status no longer conflicts with the title, while loading statistics remain correctly positioned.\n\nFixes\n\n- Fixed the player hanging when opened on iOS 15.\n- Fixed the play button remaining hidden after seeking.\n- The F key now toggles fullscreen on Mac.\n- Fixed ASS subtitles not rendering correctly in KSPlayer.\n- Fixed player filter and dropdown buttons sometimes ignoring taps.\n- Fixed title-preview actions being compressed and removed unnecessary spacing when filters are hidden.\n- Fixed add-ons showing an incorrect protected warning after being uninstalled.\n- Fixed loading torrent statistics appearing in the wrong position.\n- Fixed profile PIN errors disappearing too quickly; the error now remains until the next input.\n- Capitalized add-on types when a translation is unavailable.",
-      "downloadURL": "https://dl.strem.io/apple/2.1.1b25/ios/stremio_iOS.ipa",
-      "size": 84752072,
+      "version": "2.1.2",
+      "versionDate": "2026-11-17",
+      "versionDescription": "Stremio 2.1.2 (build 27).",
+      "downloadURL": "https://dl.strem.io/apple/2.1.2b27/ios/stremio_iOS.ipa",
+      "size": 88256855,
       "minOSVersion": "15.0",
       "screenshotURLs": [
         "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/6a/ee/19/6aee194d-7b33-aaab-b3bf-64b9773e6120/login.png/1242x2688ss.jpg",
