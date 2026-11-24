@@ -1,0 +1,47 @@
+name: CI
+
+# The test suite and the publish gate already existed, but only ran inside
+# the update and audit workflows — i.e. after a change was already on main.
+# A pull request, Dependabot's action bumps included, got no check at all.
+# This runs both on the proposal instead of after the fact. No network, no
+# write permission, under a second of actual work.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Tests and publish gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Run the test suite
+        run: python3 -m unittest discover -s scripts -p 'test_*.py'
+
+      - name: Validate the committed sources
+        # The same gate the publishing workflows run, so a hand-edited or
+        # badly merged source is caught on the pull request rather than at
+        # push time, when the only options left are revert or force.
+        run: python3 scripts/validate_source.py
+
+      - name: Check the updater still runs
+        # Not a network scan: --help only proves the module imports and the
+        # argument parser is intact, which is what a syntax or signature
+        # mistake would break.
+        run: python3 stremio-updater.py --help
