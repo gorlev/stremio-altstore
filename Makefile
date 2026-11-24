@@ -7,6 +7,7 @@
 #   make verify      — update with Info.plist verification (slower)
 #   make readme      — regenerate the README "Available versions" tables
 #   make hashes      — backfill sha256 integrity hashes (budgeted downloads)
+#   make mirror      — mirror IPAs into GitHub Releases (budgeted, needs gh)
 #   make canary      — CDN health check (newest IPAs still reachable?)
 #   make prune       — report versions whose IPA is gone (add APPLY=1 to remove)
 #   make audit       — full weekly audit: prune report + metadata verification
@@ -33,7 +34,7 @@ GREEN := \033[32m
 YELLOW := \033[33m
 RESET := \033[0m
 
-.PHONY: help dry-run update verify readme hashes canary prune audit notes shots news legacy trim validate test lint format clean set-urls ios tvos stats
+.PHONY: help dry-run update verify readme hashes mirror canary prune audit notes shots news legacy trim validate test lint format clean set-urls ios tvos stats
 
 help:  ## Show this help message
 	@echo ""
@@ -70,6 +71,10 @@ readme:  ## Regenerate the README "Available versions" tables from the JSON
 hashes:  ## Backfill sha256 integrity hashes (set BUDGET=N to override per-run cap)
 	@echo "$(YELLOW)→ Backfill sha256 hashes$(RESET)"
 	$(PYTHON) scripts/add_hashes.py $(if $(BUDGET),--budget $(BUDGET),)
+
+mirror:  ## Mirror IPAs into GitHub Releases (BUDGET=N, DRY=1, VERSION=2.1.3b28)
+	@echo "$(YELLOW)→ Mirror IPAs to releases$(RESET)"
+	$(PYTHON) scripts/mirror_release.py $(if $(BUDGET),--budget $(BUDGET),) $(if $(DRY),--dry-run,) $(if $(VERSION),--version $(VERSION),)
 
 canary:  ## CDN health check — are the newest known IPAs still reachable?
 	@echo "$(YELLOW)→ CDN health canary$(RESET)"

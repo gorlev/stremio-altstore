@@ -1,0 +1,98 @@
+name: Mirror IPAs to releases
+
+# Keeps a second copy of every listed build in this repo's Releases, so a
+# build stays installable even after Stremio pulls it from their CDN — the
+# case `prune_dead.py` otherwise has to answer by dropping the version.
+#
+# Runs after the updater rather than on its own schedule: the updater is what
+# discovers new builds and records their sha256, and this job refuses to
+# publish a build whose hash the source has not vouched for yet. Chaining the
+# two means a new build is mirrored in the same cycle it appears.
+
+on:
+  workflow_run:
+    workflows: ["Update Stremio source"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      budget:
+        description: "How many releases to mirror in this run"
+        required: false
+        default: "2"
+
+permissions:
+  contents: write
+
+# Its own group, not the updater's: this job never commits or pushes, so it
+# cannot race the source update. It must not overlap *itself* though — two
+# runs uploading the same asset is how a release ends up truncated.
+concurrency:
+  group: mirror-releases
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    name: Mirror IPAs into GitHub Releases
+    runs-on: ubuntu-latest
+    # Each release is ~170 MB down and the same back up again. Generous
+    # enough for a budget of a few, short enough that a hung CDN read
+    # does not sit there for an hour.
+    timeout-minutes: 45
+    # A failed updater run means the JSON on main is whatever it was before,
+    # which is fine to mirror — but there is nothing new to pick up, so skip.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Run the test suite
+        # This job publishes downloads under this repo's name. The planning
+        # rules that decide which bytes go out are worth checking first.
+        run: python3 -m unittest discover -s scripts -p 'test_*.py'
+
+      - name: Report mirror coverage
+        # Never fails the job: --check exits 1 whenever anything is still
+        # unmirrored, which is the normal state while the backlog drains.
+        continue-on-error: true
+        run: python3 scripts/mirror_release.py --check
+
+      - name: Mirror the next builds
+        id: mirror
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MIRROR_BUDGET: ${{ github.event.inputs.budget || '2' }}
+        run: |
+          set +e
+          python3 scripts/mirror_release.py 2>&1 | tee mirror.txt
+          echo "rc=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: Summarize
+        run: |
+          {
+            echo "## Mirror run"
+            echo '```'
+            tail -20 mirror.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Flag a replaced IPA
+        # rc 2 means a recorded hash no longer matches the bytes on the CDN.
+        # The weekly audit's --reverify is what repairs that; this run just
+        # has to be loud about why a build went unmirrored.
+        if: steps.mirror.outputs.rc == '2'
+        run: |
+          echo "::error::A build no longer matches its recorded sha256 — upstream replaced the IPA. Run add_hashes.py --reverify."
+          exit 1
+
+      - name: Fail on a real error
+        if: steps.mirror.outputs.rc != '0' && steps.mirror.outputs.rc != '2'
+        run: |
+          echo "::error::Mirroring failed with exit code ${{ steps.mirror.outputs.rc }}."
+          exit 1

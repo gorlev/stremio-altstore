@@ -18,6 +18,15 @@ enough about each build for someone to choose one.
 
 ### Added
 
+- **Release mirror** — every listed build is also published as a GitHub Release
+  (`v2.1.3b28`: both IPAs plus a `shasum -c`-compatible `SHA256SUMS.txt`), with
+  Stremio's go-ahead and byte-identical to their CDN copy. The sources still
+  point at `dl.strem.io`, so installs and traffic stay upstream; the mirror is
+  there for the day a build is pulled, which until now could only be answered by
+  dropping the version and stranding whoever ran it. A build is mirrored only
+  after the source records its `sha256`, and the hash is recomputed while
+  downloading — a mismatch aborts that release rather than filling it with bytes
+  no client would accept.
 - **One-tap install page** (`install.html`, served from GitHub Pages) — no fork
   needed. Loads its data live from the JSON, so it is never out of date: latest
   build per platform, full version history, `altstore://` / `sidestore://` deep

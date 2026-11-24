@@ -14,6 +14,7 @@ An **unofficial** AltStore-format source collection for Stremio iOS and tvOS, co
 - [Quick start](#quick-start)
 - [Self-host your own copy](#self-host-your-own-copy)
 - [Available versions](#available-versions)
+- [Release mirror](#release-mirror)
 - [Automatic updates](#automatic-updates)
 - [Manual updates](#manual-updates)
 - [Architecture](#architecture)
@@ -176,6 +177,64 @@ Prefer to run your own source (own URL, own update schedule)? Fork and host it i
 
 ---
 
+## Release mirror
+
+Every build listed in the sources is also mirrored into this repo's
+[Releases](https://github.com/gorlev/stremio-altstore/releases), one release per
+version **and** build:
+
+```
+v2.1.3b28
+├── stremio_iOS.ipa      ← unmodified upstream IPA
+├── stremio_tvOS.ipa     ← unmodified upstream IPA
+└── SHA256SUMS.txt       ← the same hashes the JSON sources publish
+```
+
+The IPAs are Stremio's own files, byte for byte — nothing here is built,
+repackaged or re-signed, and the mirror exists with Stremio's go-ahead. The
+sources keep pointing at `dl.strem.io`, so normal installs still come from
+upstream and the traffic stays on their CDN. The mirror answers a different
+problem: a URL on someone else's CDN is the one part of this source that can
+disappear without warning. `prune_dead.py` exists because builds *do* get
+pulled, and until now the only answer was to drop the version and strand
+whoever was running it. Now the bytes survive the pull.
+
+Verify any download against the manifest in its release:
+
+```bash
+shasum -a 256 -c SHA256SUMS.txt
+```
+
+Those are the same `sha256` values the JSON sources carry, so a signing app
+that checks integrity accepts either copy.
+
+Two rules keep the mirror worth trusting:
+
+- **A build is mirrored only once the source has recorded its `sha256`.**
+  Publishing bytes this source cannot vouch for would make the mirror less
+  trustworthy than the CDN it mirrors, so `add_hashes.py` always goes first.
+- **The hash is recomputed from the bytes as they download**, and a mismatch
+  aborts that release instead of filling it. A mismatch means upstream replaced
+  the file at the same URL, which is exactly what the weekly audit's
+  `add_hashes.py --reverify` repairs.
+
+`.github/workflows/mirror.yml` runs after each successful updater run, mirroring
+a couple of releases at a time (~170 MB each) so the backlog drains over a few
+runs and every new build is mirrored in the cycle it appears. A build that only
+exists for one platform simply gets one IPA and its release says so. Trimming a
+version out of the JSON does not delete its release — the archive is the point.
+
+To mirror by hand (needs the `gh` CLI, authenticated):
+
+```bash
+make mirror                      # next couple of builds
+make mirror DRY=1                # show the plan, download nothing
+make mirror VERSION=2.1.3b28     # one specific build
+python3 scripts/mirror_release.py --check   # coverage report
+```
+
+---
+
 ## Automatic updates
 
 The repo includes a GitHub Actions workflow that runs `stremio-updater.py` every 6 hours, discovers new Stremio versions, updates the JSON files, and auto-commits. With GitHub Pages enabled, new versions appear in your signing app within minutes.
@@ -280,7 +339,8 @@ stremio-altstore/
 │   ├── dependabot.yml          ← keeps the workflow actions current
 │   ├── workflows/
 │   │   ├── update.yml          ← auto-update every 6 hours + CDN canary
-│   │   └── audit.yml           ← weekly dead-IPA prune + metadata verify
+│   │   ├── audit.yml           ← weekly dead-IPA prune + metadata verify
+│   │   └── mirror.yml          ← mirrors each build into a GitHub Release
 │   └── ISSUE_TEMPLATE/
 │       ├── bug_report.yml
 │       ├── feature_request.yml
@@ -289,6 +349,7 @@ stremio-altstore/
     ├── verify_bundle_ids.py    ← standalone IPA Info.plist verifier
     ├── render_readme.py        ← regenerates the version tables above
     ├── add_hashes.py           ← backfills sha256 integrity hashes (budgeted)
+    ├── mirror_release.py       ← mirrors IPAs into GitHub Releases (budgeted)
     ├── check_cdn.py            ← CDN health canary (opens an issue if broken)
     ├── prune_dead.py           ← removes versions whose IPA is gone (404)
     ├── trim_versions.py        ← retention policy for the version list
@@ -300,6 +361,7 @@ stremio-altstore/
     ├── test_ipa_plist.py       ← ZIP/plist parser, against real archives
     ├── test_prune_dead.py      ← the safety rails on the script that deletes
     ├── test_updater_logic.py   ← version discovery and merge invariants
+    ├── test_mirror_release.py  ← what gets mirrored, and what must not
     ├── test_derived_data.py    ← README render, legacy mirror, notes, hashes
     └── test_validate_source.py ← proves the publish gate actually fires
 ```
