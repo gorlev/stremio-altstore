@@ -58,6 +58,16 @@
       },
       "versions": [
         {
+          "version": "2.1.3",
+          "buildVersion": "28",
+          "date": "2026-11-23",
+          "localizedDescription": "Stremio 2.1.3 (build 28).",
+          "downloadURL": "https://dl.strem.io/apple/2.1.3b28/ios/stremio_iOS.ipa",
+          "size": 88297123,
+          "sha256": "8cae780dbf9e407bd7a0960beba1d601b5ed8d0ea148e4af17544d41772f1e09",
+          "minOSVersion": "15.0"
+        },
+        {
           "version": "2.1.2",
           "buildVersion": "27",
           "date": "2026-11-17",
@@ -178,11 +188,11 @@
           "minOSVersion": "13.0"
         }
       ],
-      "version": "2.1.2",
-      "versionDate": "2026-11-17",
-      "versionDescription": "New\n\n- Added an option in Appearance settings to show titles below catalog posters.\n- Play HTTP, HTTPS and magnet links directly by pasting them into Search.\n- Added an experimental version streaming server which was rewritten in rust, available in Advanced settings and requiring an app restart.\n- Added Native Player as an external player, with playback progress syncing back to Stremio.\n\nFixes\n\n- Fixed title-preview action buttons when using the app as a guest.\n- Torrent status now shows peer counts and download speed even when a stream has no file index.\n- Clarified warnings explaining why software decoding is being used (interlaced videos).",
-      "downloadURL": "https://dl.strem.io/apple/2.1.2b27/ios/stremio_iOS.ipa",
-      "size": 88256855,
+      "version": "2.1.3",
+      "versionDate": "2026-11-23",
+      "versionDescription": "Stremio 2.1.3 (build 28).",
+      "downloadURL": "https://dl.strem.io/apple/2.1.3b28/ios/stremio_iOS.ipa",
+      "size": 88297123,
       "minOSVersion": "15.0",
       "screenshotURLs": [
         "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/6a/ee/19/6aee194d-7b33-aaab-b3bf-64b9773e6120/login.png/1242x2688ss.jpg",
