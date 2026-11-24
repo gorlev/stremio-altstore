@@ -10,6 +10,11 @@ on:
     - cron: "0 */6 * * *"
   workflow_dispatch:
   push:
+    # main only. This job ends in `git push origin HEAD:main`, so without a
+    # branch filter a push to any feature branch would publish that branch's
+    # JSON and README to main.
+    branches:
+      - main
     # Skip re-running for our own commits (prevents an infinite loop)
     paths-ignore:
       - "**.md"
