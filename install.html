@@ -124,13 +124,13 @@
     .ident .mark { width: 32px; height: 32px; flex: 0 0 auto; display: block; }
     .ident .name { font-weight: 600; font-size: 16px; letter-spacing: -0.01em; }
     .ident .kind { color: var(--ink-3); font-size: 14px; }
-    .masthead > a {
+    .masthead .ghlink {
       color: var(--ink-2); text-decoration: none; font-size: 14px; font-weight: 500;
       padding: var(--s2) var(--s4); border-radius: var(--r-pill);
       background: var(--surface);
       transition: background-color .15s, color .15s;
     }
-    .masthead > a:hover { background: var(--surface-hi); color: var(--ink); }
+    .masthead .ghlink:hover { background: var(--surface-hi); color: var(--ink); }
 
     /* ---------- hero ---------- */
     .hero { padding: var(--s7) 0 var(--s8); max-width: 44ch; }
@@ -197,6 +197,7 @@
       padding: var(--s3) var(--s5);
       font-family: var(--mono); font-size: 13px; color: var(--ink);
       overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;
+      direction: ltr; text-align: left;
     }
     .copy {
       flex: 0 0 auto; cursor: pointer; font-family: var(--text);
@@ -261,7 +262,7 @@
     .strip-top h2 { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
     .strip-top .tv-ver { font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; }
     .strip-top .tv-meta { font-size: 14px; color: var(--ink-3); }
-    .strip-top .count { margin-left: auto; }
+    .strip-top .count { margin-inline-start: auto; }
     .strip .source { margin-top: var(--s4); }
     .strip .acts { margin-top: var(--s3); }
     .strip .act { font-size: 14px; padding: var(--s2) var(--s5); }
@@ -281,7 +282,7 @@
     }
     table.vt { width: 100%; border-collapse: collapse; font-size: 14px; }
     .vt th {
-      text-align: left; font-weight: 500; font-size: 13px; color: var(--ink-3);
+      text-align: start; font-weight: 500; font-size: 13px; color: var(--ink-3);
       padding: var(--s3) var(--s5); border-bottom: 1px solid var(--hairline);
       white-space: nowrap;
     }
@@ -290,14 +291,14 @@
       white-space: nowrap; vertical-align: baseline;
     }
     .vt tbody tr:last-child td { border-bottom: none; }
-    .vt .num { text-align: right; }
+    .vt .num { text-align: end; }
     .vt .ver { font-weight: 600; font-variant-numeric: tabular-nums; }
     /* Unbreakable, so where the version cell is allowed to wrap, whole
        tokens move to the next line — never "build" away from its number. */
-    .vt .build { color: var(--ink-3); font-weight: 400; white-space: nowrap; margin-left: var(--s1); }
+    .vt .build { color: var(--ink-3); font-weight: 400; white-space: nowrap; margin-inline-start: var(--s1); }
     .vt .dim { color: var(--ink-2); }
     .now {
-      margin-left: var(--s2); padding: 1px var(--s2);
+      margin-inline-start: var(--s2); padding: 1px var(--s2);
       border-radius: var(--r-pill); background: var(--accent-wash);
       color: var(--accent-ink); font-size: 12px; font-weight: 600;
     }
@@ -308,7 +309,7 @@
     .vt tr.has-notes:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: -2px; }
     .tri-row {
       display: inline-block; width: 0; height: 0;
-      margin-right: var(--s2); vertical-align: 1px;
+      margin-inline-end: var(--s2); vertical-align: 1px;
       border-left: 5px solid var(--ink-3);
       border-top: 4px solid transparent; border-bottom: 4px solid transparent;
       transition: transform .15s ease, border-left-color .15s ease;
@@ -357,9 +358,100 @@
     footer a { color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--hairline); }
     footer a:hover { color: var(--accent-ink); border-color: var(--accent-ink); }
 
+    /* ---------- language picker ---------- */
+    /* Sits in the masthead beside the GitHub link and is built from the same
+       pill that link uses, so it reads as part of that row rather than a
+       control bolted on. The menu takes Stremio's modal colour, the one
+       surface in their palette meant to float above the backdrop. A native
+       <select> was the other option, but its menu is drawn by the operating
+       system and lands on this page as a pale rectangle. */
+    .masthead-end { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
+
+    .langpick { position: relative; }
+    .langpick-btn {
+      display: inline-flex; align-items: center; gap: var(--s2);
+      font-family: var(--text); font-size: 14px; font-weight: 500;
+      color: var(--ink-2); background: var(--surface);
+      border: 0; border-radius: var(--r-pill);
+      padding: var(--s2) var(--s4); cursor: pointer;
+      transition: background-color .15s, color .15s;
+    }
+    .langpick-btn:hover,
+    .langpick-btn[aria-expanded="true"] { background: var(--surface-hi); color: var(--ink); }
+    .langpick-btn .globe { width: 15px; height: 15px; flex: 0 0 auto; opacity: .75; }
+    .langpick-btn:hover .globe,
+    .langpick-btn[aria-expanded="true"] .globe { opacity: 1; }
+    .langpick-chev {
+      width: 0; height: 0; flex: 0 0 auto; opacity: .7;
+      border-left: 4px solid transparent; border-right: 4px solid transparent;
+      border-top: 5px solid currentColor;
+      transition: transform .15s ease;
+    }
+    .langpick-btn[aria-expanded="true"] .langpick-chev { transform: rotate(180deg); }
+
+    .langpick-menu {
+      position: absolute; z-index: 30;
+      top: calc(100% + var(--s2)); inset-inline-end: 0;
+      margin: 0; padding: var(--s1); list-style: none;
+      min-width: 172px;
+      background: var(--stremio-modal);
+      border: 1px solid var(--hairline); border-radius: var(--r);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
+      animation: langpop .14s ease-out;
+    }
+    .langpick-menu[hidden] { display: none; }
+    @keyframes langpop {
+      from { opacity: 0; transform: translateY(-5px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .langpick-menu li { margin: 0; }
+    .langpick-opt {
+      display: flex; align-items: center; gap: var(--s3); width: 100%;
+      font-family: var(--text); font-size: 14px; font-weight: 500;
+      color: var(--ink-2); text-align: start;
+      background: none; border: 0; cursor: pointer;
+      padding: var(--s2) var(--s3); border-radius: var(--r-sm);
+      transition: background-color .12s, color .12s;
+    }
+    .langpick-opt:hover { background: var(--surface-hi); color: var(--ink); }
+    /* The tick keeps its place in the layout and is only made invisible, so
+       the labels don't shift sideways as the selection moves. */
+    .langpick-opt .tick {
+      width: 11px; height: 6px; flex: 0 0 auto;
+      margin-inline-start: auto; visibility: hidden;
+      border-left: 2px solid currentColor; border-bottom: 2px solid currentColor;
+      transform: rotate(-45deg) translate(1px, -2px);
+    }
+    .langpick-opt[aria-selected="true"] { color: var(--accent-ink); }
+    .langpick-opt[aria-selected="true"] .tick { visibility: visible; }
+
+    /* ---------- right to left ---------- */
+    /* The two arrows are the only things that actually have a handedness;
+       everything else above is written with logical properties. */
+    [dir="rtl"] .tri,
+    [dir="rtl"] .tri-row { transform: rotate(180deg); }
+    [dir="rtl"] .notes[open] summary .tri,
+    [dir="rtl"] .vt tr.open .tri-row { transform: rotate(90deg); }
+
+    /* Plus Jakarta Sans carries no Arabic, and the tight tracking the Latin
+       headings ask for breaks Arabic letter joins. Both are set for that
+       one language rather than for the right-to-left direction. */
+    html[lang="ar"] {
+      --text: "IBM Plex Sans Arabic", "Noto Sans Arabic", "Geeza Pro",
+              "Segoe UI", system-ui, sans-serif;
+    }
+    html[lang="ar"] .hero h1,
+    html[lang="ar"] .releases > h2,
+    html[lang="ar"] .panel-head h2,
+    html[lang="ar"] .strip-top h2,
+    html[lang="ar"] .vnum,
+    html[lang="ar"] .ident .name { letter-spacing: normal; }
+    html[lang="ar"] .hero { max-width: 52ch; }
+
     /* ---------- narrow screens ---------- */
     @media (max-width: 720px) {
       .page { padding: 0 var(--s4) var(--s7); }
+      .masthead { gap: var(--s3); }
       .hero { padding: var(--s6) 0 var(--s7); }
       .hero .lead { font-size: 17px; }
       .panel { padding: var(--s5); }
@@ -400,64 +492,87 @@
       <div class="ident">
         <img class="mark" src="stremio-icon.svg" alt="" width="32" height="32" />
         <span class="name">stremio&#8209;altstore</span>
-        <span class="kind">Unofficial source</span>
+        <span class="kind" data-i18n="ident.kind">Unofficial source</span>
       </div>
-      <a href="https://github.com/gorlev/stremio-altstore">Source on GitHub</a>
+
+      <div class="masthead-end">
+        <!-- A custom listbox rather than a <select>: the native control draws
+             its menu with the operating system's own chrome, which on this
+             backdrop reads as a light grey rectangle dropped onto the page.
+             Button + listbox, with the keyboard behaviour written out. -->
+        <div class="langpick" id="langpick">
+          <button type="button" class="langpick-btn" id="langpick-btn"
+                  aria-haspopup="listbox" aria-expanded="false" aria-controls="langpick-menu">
+            <svg class="globe" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M3 12h18" />
+              <path d="M12 3c2.6 2.4 4 5.6 4 9s-1.4 6.6-4 9c-2.6-2.4-4-5.6-4-9s1.4-6.6 4-9Z" />
+            </svg>
+            <span class="langpick-cur" id="langpick-cur">English</span>
+            <span class="langpick-chev" aria-hidden="true"></span>
+          </button>
+          <ul class="langpick-menu" id="langpick-menu" role="listbox" hidden></ul>
+        </div>
+
+        <a class="ghlink" href="https://github.com/gorlev/stremio-altstore"
+           data-i18n="nav.github">Source on GitHub</a>
+      </div>
     </header>
 
     <section class="hero">
-      <h1>Stremio on your iPhone, iPad and Apple TV</h1>
-      <p class="lead">Stremio builds these apps and serves them from its own
+      <h1 data-i18n="hero.h1">Stremio on your iPhone, iPad and Apple TV</h1>
+      <p class="lead" data-i18n="hero.lead">Stremio builds these apps and serves them from its own
          servers, but never lists them on the App Store. This source mirrors every
          build and re-checks it every six hours, so your signing app picks up a new
          release the day it ships.</p>
-      <p class="freshness" id="freshness" title="The updater runs every six hours">
+      <p class="freshness" id="freshness" data-i18n-title="fresh.title">
         <span class="mark" id="freshness-dot"></span>
-        <span id="freshness-text">Checked every six hours</span>
+        <span id="freshness-text" data-i18n="fresh.static">Checked every six hours</span>
       </p>
     </section>
 
     <article class="panel" id="card-ios">
       <header class="panel-head">
-        <h2>iPhone &amp; iPad</h2>
+        <h2 data-i18n="ios.h2">iPhone &amp; iPad</h2>
         <span class="count" id="meta-ios">&nbsp;</span>
       </header>
 
       <div class="stand">
         <span class="vnum" id="latest-ios">&mdash;</span>
         <dl class="spec">
-          <div><dt>Build</dt><dd id="build-ios">&mdash;</dd></div>
-          <div><dt>Released</dt><dd id="date-ios">&mdash;</dd></div>
-          <div><dt>Size</dt><dd id="size-ios">&mdash;</dd></div>
+          <div><dt data-i18n="spec.build">Build</dt><dd id="build-ios">&mdash;</dd></div>
+          <div><dt data-i18n="spec.released">Released</dt><dd id="date-ios">&mdash;</dd></div>
+          <div><dt data-i18n="spec.size">Size</dt><dd id="size-ios">&mdash;</dd></div>
         </dl>
       </div>
 
       <div class="source">
-        <p class="source-label">Source URL</p>
+        <p class="source-label" data-i18n="source.label">Source URL</p>
         <div class="urlrow">
           <div class="url" id="url-ios"></div>
-          <button class="copy" data-copy="url-ios">Copy</button>
+          <button class="copy" data-copy="url-ios" data-i18n="action.copy">Copy</button>
         </div>
       </div>
 
       <div class="acts">
-        <a class="act primary" id="alt-ios">Add to AltStore</a>
-        <a class="act secondary" id="side-ios">Add to SideStore</a>
+        <a class="act primary" id="alt-ios" data-i18n="action.addAlt">Add to AltStore</a>
+        <a class="act secondary" id="side-ios" data-i18n="action.addSide">Add to SideStore</a>
       </div>
-      <p class="aside"><b>Using Feather, ESign or Scarlet?</b> Paste the URL above
-         into the app's Sources screen.</p>
+      <p class="aside"><b data-i18n="aside.ios.lead">Using Feather, ESign or Scarlet?</b>
+         <span data-i18n="aside.ios.rest">Paste the URL above into the app's Sources screen.</span></p>
 
       <details class="notes" id="notes-ios" hidden>
-        <summary><span class="tri"></span>What's new in this build</summary>
+        <summary><span class="tri"></span><span data-i18n="notes.summary">What's new in this build</span></summary>
         <p class="notes-body" id="notes-ios-body"></p>
       </details>
     </article>
 
     <article class="strip" id="card-tvos">
       <div class="strip-top">
-        <h2>Apple TV</h2>
+        <h2 data-i18n="tvos.h2">Apple TV</h2>
         <span class="tv-ver" id="latest-tvos">&mdash;</span>
-        <span class="tv-meta">build <span id="build-tvos">&mdash;</span></span>
+        <span class="tv-meta"><span data-i18n="tvos.buildWord">build</span> <span id="build-tvos">&mdash;</span></span>
         <span class="tv-meta"><span id="date-tvos">&mdash;</span></span>
         <span class="tv-meta"><span id="size-tvos">&mdash;</span></span>
         <span class="count" id="meta-tvos">&nbsp;</span>
@@ -466,39 +581,42 @@
       <div class="source">
         <div class="urlrow">
           <div class="url" id="url-tvos"></div>
-          <button class="copy" data-copy="url-tvos">Copy</button>
+          <button class="copy" data-copy="url-tvos" data-i18n="action.copy">Copy</button>
         </div>
       </div>
 
       <div class="acts">
-        <a class="act secondary" id="alt-tvos">Add to AltStore</a>
-        <a class="act secondary" id="side-tvos">Add to SideStore</a>
+        <a class="act secondary" id="alt-tvos" data-i18n="action.addAlt">Add to AltStore</a>
+        <a class="act secondary" id="side-tvos" data-i18n="action.addSide">Add to SideStore</a>
       </div>
-      <p class="aside"><b>Setting this up on the TV itself?</b> tvOS signing apps
-         have no clipboard to paste into, so type the URL in by hand.</p>
+      <p class="aside"><b data-i18n="aside.tvos.lead">Setting this up on the TV itself?</b>
+         <span data-i18n="aside.tvos.rest">tvOS signing apps have no clipboard to paste into,
+         so type the URL in by hand.</span></p>
 
       <details class="notes" id="notes-tvos" hidden>
-        <summary><span class="tri"></span>What's new in this build</summary>
+        <summary><span class="tri"></span><span data-i18n="notes.summary">What's new in this build</span></summary>
         <p class="notes-body" id="notes-tvos-body"></p>
       </details>
     </article>
 
     <section class="releases">
-      <h2>Every release</h2>
-      <p>Read live from the source files, so this never falls behind what your
+      <h2 data-i18n="releases.h2">Every release</h2>
+      <p data-i18n="releases.lead">Read live from the source files, so this never falls behind what your
          signing app sees. Each download goes straight to Stremio's own CDN. Rows
          carrying a changelog open when you select them, and on a wider screen every
          row shows the SHA&#8209;256 fingerprint of its IPA — select a fingerprint
          to copy it in full.</p>
-      <div id="version-groups"><div class="loading">Reading the source files…</div></div>
+      <div id="version-groups"><div class="loading" data-i18n="releases.loading">Reading the source files…</div></div>
     </section>
 
     <footer>
-      <p>A community project, not affiliated with Stremio or SmartCode OOD. The IPAs
-         are served by Stremio's public CDN at <code>dl.strem.io</code>; this repository
-         publishes only the metadata that points at them.</p>
-      <p>Apps signed with a free Apple ID stop opening after seven days, so you will
-         need to re-sign. <a href="https://github.com/gorlev/stremio-altstore">Read the
+      <p><span data-i18n="footer.cdn.before">A community project, not affiliated with Stremio.
+         The IPAs are served by Stremio's public CDN at </span><code>dl.strem.io</code><span
+         data-i18n="footer.cdn.after">; this repository publishes only the metadata that
+         points at them.</span></p>
+      <p><span data-i18n="footer.resign">Apps signed with a free Apple ID stop opening after
+         seven days, so you will need to re-sign.</span> <a
+         href="https://github.com/gorlev/stremio-altstore" data-i18n="footer.link">Read the
          source or report a problem on GitHub</a>.</p>
     </footer>
   </div>
@@ -506,9 +624,728 @@
   <script>
     var BASE = "https://gorlev.github.io/stremio-altstore/";
     var PLATFORMS = [
-      { key: "ios",  json: "stremio-ios.json",  label: "iOS / iPadOS" },
-      { key: "tvos", json: "stremio-tvos.json", label: "Apple TV" }
+      { key: "ios",  json: "stremio-ios.json",  labelKey: "plat.ios" },
+      { key: "tvos", json: "stremio-tvos.json", labelKey: "plat.tvos" }
     ];
+
+    /* ==================================================================
+       Language
+       ------------------------------------------------------------------
+       Seven catalogues, inlined rather than fetched: the page is static,
+       the whole set is a few tens of kilobytes, and a fetch would mean the
+       first paint is in the wrong language. Switching is therefore
+       instant and works from file:// too.
+
+       Date and number formatting is handed to Intl with an explicit
+       locale per language. Arabic asks for Latin digits (-u-nu-latn):
+       the page is full of version numbers and byte counts that stay in
+       Latin script, and mixing the two numeral systems in one table
+       reads worse than either alone.
+       ================================================================== */
+    var LANGS = [
+      { code: "en", native: "English",  locale: "en-US" },
+      { code: "tr", native: "Türkçe",   locale: "tr-TR" },
+      { code: "es", native: "Español",  locale: "es-ES" },
+      { code: "fr", native: "Français", locale: "fr-FR" },
+      { code: "de", native: "Deutsch",  locale: "de-DE" },
+      { code: "ru", native: "Русский",  locale: "ru-RU" },
+      { code: "ar", native: "العربية",  locale: "ar-u-nu-latn", rtl: true }
+    ];
+    var STRINGS = {
+          "en": {
+                "meta.title": "Stremio — Unofficial AltStore Source",
+                "meta.description": "Sideload Stremio on iPhone, iPad and Apple TV. A community source for AltStore and SideStore, mirrored from Stremio's own servers every six hours.",
+                "ident.kind": "Unofficial source",
+                "nav.github": "Source on GitHub",
+                "lang.label": "Language",
+                "hero.h1": "Stremio on your iPhone, iPad and Apple TV",
+                "hero.lead": "Stremio builds these apps and serves them from its own servers, but never lists them on the App Store. This source mirrors every build and re-checks it every six hours, so your signing app picks up a new release the day it ships.",
+                "fresh.title": "The updater runs every six hours",
+                "fresh.static": "Checked every six hours",
+                "fresh.checked": "Checked {time}",
+                "fresh.last": "Last checked {time}",
+                "fresh.stopped": "Last checked {time} — updates may have stopped",
+                "fresh.succeeded": "The updater last succeeded {date}",
+                "time.justNow": "just now",
+                "time.minutes": {
+                      "one": "1 minute ago",
+                      "other": "{n} minutes ago"
+                },
+                "time.hours": {
+                      "one": "an hour ago",
+                      "other": "{n} hours ago"
+                },
+                "time.days": {
+                      "one": "a day ago",
+                      "other": "{n} days ago"
+                },
+                "ios.h2": "iPhone & iPad",
+                "spec.build": "Build",
+                "spec.released": "Released",
+                "spec.size": "Size",
+                "source.label": "Source URL",
+                "action.copy": "Copy",
+                "action.copied": "Copied",
+                "action.addAlt": "Add to AltStore",
+                "action.addSide": "Add to SideStore",
+                "aside.ios.lead": "Using Feather, ESign or Scarlet?",
+                "aside.ios.rest": "Paste the URL above into the app's Sources screen.",
+                "notes.summary": "What's new in this build",
+                "tvos.h2": "Apple TV",
+                "tvos.buildWord": "build",
+                "aside.tvos.lead": "Setting this up on the TV itself?",
+                "aside.tvos.rest": "tvOS signing apps have no clipboard to paste into, so type the URL in by hand.",
+                "releases.h2": "Every release",
+                "releases.lead": "Read live from the source files, so this never falls behind what your signing app sees. Each download goes straight to Stremio's own CDN. Rows carrying a changelog open when you select them, and on a wider screen every row shows the SHA-256 fingerprint of its IPA — select a fingerprint to copy it in full.",
+                "releases.loading": "Reading the source files…",
+                "releases.failed": "The source files didn't load. Open stremio-ios.json or stremio-tvos.json on GitHub to read them directly.",
+                "plat.ios": "iOS / iPadOS",
+                "plat.tvos": "Apple TV",
+                "th.version": "Version",
+                "th.app": "App",
+                "th.released": "Released",
+                "th.size": "Size",
+                "th.fingerprint": "Fingerprint",
+                "tag.latest": "latest",
+                "row.build": "build {n}",
+                "row.getIpa": "Get IPA",
+                "sha.title": "Copy the full SHA-256",
+                "sha.copied": "copied",
+                "count.releases": {
+                      "one": "1 release",
+                      "other": "{n} releases"
+                },
+                "count.unavailable": "Source file unavailable",
+                "value.none": "—",
+                "footer.cdn.before": "A community project, not affiliated with Stremio. The IPAs are served by Stremio's public CDN at ",
+                "footer.cdn.after": "; this repository publishes only the metadata that points at them.",
+                "footer.resign": "Apps signed with a free Apple ID stop opening after seven days, so you will need to re-sign.",
+                "footer.link": "Read the source or report a problem on GitHub"
+          },
+          "tr": {
+                "meta.title": "Stremio — Resmi olmayan AltStore kaynağı",
+                "meta.description": "Stremio'yu iPhone, iPad ve Apple TV'ye sideload edin. AltStore ve SideStore için bir topluluk kaynağı; Stremio'nun kendi sunucuları altı saatte bir kontrol ediliyor.",
+                "ident.kind": "Resmi olmayan kaynak",
+                "nav.github": "Kaynak kodu GitHub'da",
+                "lang.label": "Dil",
+                "hero.h1": "iPhone, iPad ve Apple TV'de Stremio",
+                "hero.lead": "Stremio bu uygulamaları kendisi geliştiriyor ve kendi sunucularından dağıtıyor, ama App Store'a hiç koymuyor. Bu kaynak o sunucuları altı saatte bir kontrol ediyor; çıkan her build buraya düşüyor. Yani yeni bir sürüm, çıktığı gün AltStore ya da SideStore'da görünüyor.",
+                "fresh.title": "Liste altı saatte bir güncelleniyor",
+                "fresh.static": "Altı saatte bir kontrol ediliyor",
+                "fresh.checked": "{time} kontrol edildi",
+                "fresh.last": "En son {time} kontrol edildi",
+                "fresh.stopped": "En son {time} kontrol edildi — güncellemeler durmuş olabilir",
+                "fresh.succeeded": "Son başarılı kontrol: {date}",
+                "time.justNow": "az önce",
+                "time.minutes": {
+                      "one": "1 dakika önce",
+                      "other": "{n} dakika önce"
+                },
+                "time.hours": {
+                      "one": "1 saat önce",
+                      "other": "{n} saat önce"
+                },
+                "time.days": {
+                      "one": "1 gün önce",
+                      "other": "{n} gün önce"
+                },
+                "ios.h2": "iPhone ve iPad",
+                "spec.build": "Build",
+                "spec.released": "Yayın tarihi",
+                "spec.size": "Boyut",
+                "source.label": "Kaynak adresi",
+                "action.copy": "Kopyala",
+                "action.copied": "Kopyalandı",
+                "action.addAlt": "AltStore'a ekle",
+                "action.addSide": "SideStore'a ekle",
+                "aside.ios.lead": "Feather, ESign veya Scarlet mi kullanıyorsunuz?",
+                "aside.ios.rest": "Yukarıdaki adresi uygulamadaki Kaynaklar ekranına yapıştırmanız yeterli.",
+                "notes.summary": "Bu sürümdeki yenilikler",
+                "tvos.h2": "Apple TV",
+                "tvos.buildWord": "build",
+                "aside.tvos.lead": "Kurulumu doğrudan TV'de mi yapıyorsunuz?",
+                "aside.tvos.rest": "tvOS'taki uygulamalarda pano olmadığı için kopyala-yapıştır çalışmıyor; adresi elle yazmanız gerekiyor.",
+                "releases.h2": "Tüm sürümler",
+                "releases.lead": "Bu liste kaynak dosyaların kendisinden okunuyor: AltStore'da ne görüyorsanız burada da aynısı var. İndirme bağlantıları doğrudan Stremio'nun kendi CDN'ine gidiyor. Değişiklik notu olan satırlar tıklayınca açılıyor. Geniş ekranlarda her satırda IPA dosyasının SHA-256 parmak izi de görünüyor; üzerine tıklarsanız tamamı kopyalanır.",
+                "releases.loading": "Kaynak dosyalar okunuyor…",
+                "releases.failed": "Kaynak dosyalar yüklenemedi. Listeyi doğrudan görmek için GitHub'daki stremio-ios.json veya stremio-tvos.json dosyasını açabilirsiniz.",
+                "plat.ios": "iOS / iPadOS",
+                "plat.tvos": "Apple TV",
+                "th.version": "Sürüm",
+                "th.app": "Uygulama",
+                "th.released": "Tarih",
+                "th.size": "Boyut",
+                "th.fingerprint": "Parmak izi",
+                "tag.latest": "en yeni",
+                "row.build": "build {n}",
+                "row.getIpa": "IPA'yı indir",
+                "sha.title": "SHA-256'nın tamamını kopyala",
+                "sha.copied": "kopyalandı",
+                "count.releases": {
+                      "one": "1 sürüm",
+                      "other": "{n} sürüm"
+                },
+                "count.unavailable": "Kaynak dosya açılamadı",
+                "value.none": "—",
+                "footer.cdn.before": "Bu bir topluluk projesi, Stremio ile bir ilgisi yok. IPA dosyaları Stremio'nun herkese açık CDN'inde, ",
+                "footer.cdn.after": " adresinde duruyor; bu depoda yalnızca onlara işaret eden bilgiler var.",
+                "footer.resign": "Ücretsiz bir Apple ID ile imzaladığınız uygulamalar yedi gün sonra açılmıyor; o zaman yeniden imzalamanız gerekiyor.",
+                "footer.link": "Kodu inceleyin ya da GitHub'da sorun bildirin"
+          },
+          "es": {
+                "meta.title": "Stremio — Fuente no oficial para AltStore",
+                "meta.description": "Instala Stremio en tu iPhone, iPad o Apple TV sin pasar por la App Store. Fuente comunitaria para AltStore y SideStore, que se actualiza cada seis horas con lo que publica Stremio.",
+                "ident.kind": "Fuente no oficial",
+                "nav.github": "Ver el código en GitHub",
+                "lang.label": "Idioma",
+                "hero.h1": "Stremio en tu iPhone, iPad y Apple TV",
+                "hero.lead": "Stremio compila estas apps y las deja en sus propios servidores, pero no las publica en la App Store. Aquí están todas, y la lista se revisa cada seis horas: cuando sale una versión nueva, AltStore o SideStore ya la ven ese mismo día.",
+                "fresh.title": "La lista se revisa cada seis horas",
+                "fresh.static": "Se comprueba cada seis horas",
+                "fresh.checked": "Se comprobó {time}",
+                "fresh.last": "Se comprobó por última vez {time}",
+                "fresh.stopped": "Se comprobó por última vez {time}; puede que el actualizador se haya detenido",
+                "fresh.succeeded": "Última comprobación correcta: {date}",
+                "time.justNow": "ahora mismo",
+                "time.minutes": {
+                      "one": "hace 1 minuto",
+                      "other": "hace {n} minutos"
+                },
+                "time.hours": {
+                      "one": "hace una hora",
+                      "other": "hace {n} horas"
+                },
+                "time.days": {
+                      "one": "hace un día",
+                      "other": "hace {n} días"
+                },
+                "ios.h2": "iPhone y iPad",
+                "spec.build": "Compilación",
+                "spec.released": "Salió el",
+                "spec.size": "Tamaño",
+                "source.label": "URL de la fuente",
+                "action.copy": "Copiar",
+                "action.copied": "Copiada",
+                "action.addAlt": "Añadir a AltStore",
+                "action.addSide": "Añadir a SideStore",
+                "aside.ios.lead": "¿Usas Feather, ESign o Scarlet?",
+                "aside.ios.rest": "Pega esa URL en el apartado de fuentes de la app.",
+                "notes.summary": "Novedades de esta versión",
+                "tvos.h2": "Apple TV",
+                "tvos.buildWord": "compilación",
+                "aside.tvos.lead": "¿Lo estás configurando desde la propia TV?",
+                "aside.tvos.rest": "En tvOS no hay portapapeles, así que te toca escribir la URL a mano.",
+                "releases.h2": "Todas las versiones",
+                "releases.lead": "Esta tabla sale de los mismos archivos que lee AltStore, así que siempre coincide con lo que ves en la app, y cada descarga sale del CDN de Stremio. Selecciona una fila para ver su registro de cambios, cuando lo trae. En pantallas grandes también aparece el hash SHA-256 de cada IPA: selecciónalo y se copia completo.",
+                "releases.loading": "Leyendo los archivos de la fuente…",
+                "releases.failed": "No se han podido cargar los archivos de la fuente. Puedes consultarlos tal cual abriendo stremio-ios.json o stremio-tvos.json en GitHub.",
+                "plat.ios": "iOS / iPadOS",
+                "plat.tvos": "Apple TV",
+                "th.version": "Versión",
+                "th.app": "App",
+                "th.released": "Fecha",
+                "th.size": "Tamaño",
+                "th.fingerprint": "Hash",
+                "tag.latest": "última",
+                "row.build": "compilación {n}",
+                "row.getIpa": "Descargar IPA",
+                "sha.title": "Copiar el SHA-256 completo",
+                "sha.copied": "copiado",
+                "count.releases": {
+                      "one": "1 versión",
+                      "other": "{n} versiones"
+                },
+                "count.unavailable": "No se pudo leer el archivo",
+                "value.none": "—",
+                "footer.cdn.before": "Es un proyecto comunitario y no tiene relación con Stremio. Los IPA los sirve el CDN público de Stremio, en ",
+                "footer.cdn.after": "; este repositorio solo publica los metadatos que apuntan a ellos.",
+                "footer.resign": "Si firmas con un Apple ID gratuito, las apps dejan de abrirse a los siete días y hay que volver a firmarlas.",
+                "footer.link": "Mira el código o informa de un problema en GitHub"
+          },
+          "fr": {
+                "meta.title": "Stremio — source AltStore non officielle",
+                "meta.description": "Installez Stremio sur iPhone, iPad et Apple TV en dehors de l'App Store. Source communautaire pour AltStore et SideStore, synchronisée avec les serveurs de Stremio toutes les six heures.",
+                "ident.kind": "Source non officielle",
+                "nav.github": "Code source sur GitHub",
+                "lang.label": "Langue",
+                "hero.h1": "Stremio sur iPhone, iPad et Apple TV",
+                "hero.lead": "Stremio développe ces applications et les héberge sur ses propres serveurs, mais ne les publie jamais sur l'App Store. Cette source reprend tous les builds et les revérifie toutes les six heures : dès qu'une nouvelle version sort, elle apparaît dans AltStore ou SideStore.",
+                "fresh.title": "La source est revérifiée toutes les six heures",
+                "fresh.static": "Revérifiée toutes les six heures",
+                "fresh.checked": "Vérifiée {time}",
+                "fresh.last": "Vérifiée pour la dernière fois {time}",
+                "fresh.stopped": "Vérifiée pour la dernière fois {time} — les mises à jour sont peut-être interrompues",
+                "fresh.succeeded": "Dernière vérification réussie le {date}",
+                "time.justNow": "à l'instant",
+                "time.minutes": {
+                      "one": "il y a 1 minute",
+                      "other": "il y a {n} minutes"
+                },
+                "time.hours": {
+                      "one": "il y a une heure",
+                      "other": "il y a {n} heures"
+                },
+                "time.days": {
+                      "one": "il y a un jour",
+                      "other": "il y a {n} jours"
+                },
+                "ios.h2": "iPhone et iPad",
+                "spec.build": "Build",
+                "spec.released": "Sortie",
+                "spec.size": "Taille",
+                "source.label": "Adresse de la source",
+                "action.copy": "Copier",
+                "action.copied": "Copié",
+                "action.addAlt": "Ajouter à AltStore",
+                "action.addSide": "Ajouter à SideStore",
+                "aside.ios.lead": "Vous utilisez Feather, ESign ou Scarlet ?",
+                "aside.ios.rest": "Collez cette adresse dans l'onglet Sources de l'app.",
+                "notes.summary": "Nouveautés de ce build",
+                "tvos.h2": "Apple TV",
+                "tvos.buildWord": "build",
+                "aside.tvos.lead": "Vous configurez tout depuis l'Apple TV ?",
+                "aside.tvos.rest": "Sur tvOS, il n'y a pas de presse-papiers : il faut taper l'adresse à la main.",
+                "releases.h2": "Historique des versions",
+                "releases.lead": "Ce tableau est construit à partir des fichiers que lit AltStore, et affiche donc exactement les mêmes versions. Les téléchargements passent par le CDN de Stremio. Sélectionnez une ligne pour afficher son changelog, quand il y en a un ; sur un grand écran, chaque ligne affiche aussi l'empreinte SHA-256 de son IPA, à sélectionner pour la copier en entier.",
+                "releases.loading": "Lecture des fichiers de la source…",
+                "releases.failed": "Impossible de charger les fichiers de la source. Vous pouvez les consulter directement sur GitHub : stremio-ios.json et stremio-tvos.json.",
+                "plat.ios": "iOS / iPadOS",
+                "plat.tvos": "Apple TV",
+                "th.version": "Version",
+                "th.app": "App",
+                "th.released": "Sortie",
+                "th.size": "Taille",
+                "th.fingerprint": "SHA-256",
+                "tag.latest": "dernière",
+                "row.build": "build {n}",
+                "row.getIpa": "Télécharger l'IPA",
+                "sha.title": "Copier le SHA-256 complet",
+                "sha.copied": "copié",
+                "count.releases": {
+                      "one": "1 version",
+                      "other": "{n} versions"
+                },
+                "count.unavailable": "Fichier source inaccessible",
+                "value.none": "—",
+                "footer.cdn.before": "Un projet communautaire, sans lien avec Stremio. Les IPA sont servis par le CDN public de Stremio, à l'adresse ",
+                "footer.cdn.after": " ; ce dépôt ne publie que les métadonnées qui y renvoient.",
+                "footer.resign": "Avec un Apple ID gratuit, la signature expire au bout de sept jours : l'app ne s'ouvre plus et il faut la re-signer.",
+                "footer.link": "Consulter le code ou signaler un problème sur GitHub"
+          },
+          "de": {
+                "meta.title": "Stremio — unoffizielle AltStore-Quelle",
+                "meta.description": "Stremio auf iPhone, iPad und Apple TV sideloaden. Eine Community-Quelle für AltStore und SideStore, alle sechs Stunden von Stremios eigenen Servern aktualisiert.",
+                "ident.kind": "Unoffizielle Quelle",
+                "nav.github": "Quellcode auf GitHub",
+                "lang.label": "Sprache",
+                "hero.h1": "Stremio auf iPhone, iPad und Apple TV",
+                "hero.lead": "Stremio baut diese Apps selbst und bietet sie auf den eigenen Servern an – in den App Store kommen sie aber nicht. Diese Quelle holt sich alle sechs Stunden den Stand von dort, sodass ein neues Release schon am Tag der Veröffentlichung in AltStore, SideStore & Co. auftaucht.",
+                "fresh.title": "Die Liste wird alle sechs Stunden geprüft",
+                "fresh.static": "Alle sechs Stunden geprüft",
+                "fresh.checked": "Geprüft {time}",
+                "fresh.last": "Zuletzt geprüft {time}",
+                "fresh.stopped": "Zuletzt geprüft {time} – vielleicht kommen keine Updates mehr",
+                "fresh.succeeded": "Letzte erfolgreiche Prüfung: {date}",
+                "time.justNow": "gerade eben",
+                "time.minutes": {
+                      "one": "vor 1 Minute",
+                      "other": "vor {n} Minuten"
+                },
+                "time.hours": {
+                      "one": "vor einer Stunde",
+                      "other": "vor {n} Stunden"
+                },
+                "time.days": {
+                      "one": "vor einem Tag",
+                      "other": "vor {n} Tagen"
+                },
+                "ios.h2": "iPhone & iPad",
+                "spec.build": "Build",
+                "spec.released": "Erschienen",
+                "spec.size": "Größe",
+                "source.label": "URL der Quelle",
+                "action.copy": "Kopieren",
+                "action.copied": "Kopiert",
+                "action.addAlt": "Zu AltStore hinzufügen",
+                "action.addSide": "Zu SideStore hinzufügen",
+                "aside.ios.lead": "Du nutzt Feather, ESign oder Scarlet?",
+                "aside.ios.rest": "Trag die URL von oben einfach bei den Quellen ein.",
+                "notes.summary": "Neu in diesem Build",
+                "tvos.h2": "Apple TV",
+                "tvos.buildWord": "Build",
+                "aside.tvos.lead": "Du richtest das direkt am Fernseher ein?",
+                "aside.tvos.rest": "Am Apple TV gibt es keine Zwischenablage – die URL musst du von Hand eintippen.",
+                "releases.h2": "Alle Releases",
+                "releases.lead": "Die Liste kommt direkt aus den Quelldateien, du siehst hier also genau das, was auch AltStore und SideStore sehen. Jeder Download kommt von Stremios eigenem CDN. Zeilen mit Changelog klappen auf, wenn du sie auswählst, und ab einer gewissen Bildschirmbreite steht in jeder Zeile die SHA-256-Prüfsumme der IPA – wähle sie aus, um sie vollständig zu kopieren.",
+                "releases.loading": "Quelldateien werden gelesen…",
+                "releases.failed": "Die Quelldateien ließen sich nicht laden. Du kannst stremio-ios.json und stremio-tvos.json auch direkt auf GitHub öffnen.",
+                "plat.ios": "iOS / iPadOS",
+                "plat.tvos": "Apple TV",
+                "th.version": "Version",
+                "th.app": "App",
+                "th.released": "Erschienen",
+                "th.size": "Größe",
+                "th.fingerprint": "Prüfsumme",
+                "tag.latest": "aktuell",
+                "row.build": "Build {n}",
+                "row.getIpa": "IPA herunterladen",
+                "sha.title": "Vollständige SHA-256-Prüfsumme kopieren",
+                "sha.copied": "kopiert",
+                "count.releases": {
+                      "one": "1 Release",
+                      "other": "{n} Releases"
+                },
+                "count.unavailable": "Quelldatei nicht erreichbar",
+                "value.none": "—",
+                "footer.cdn.before": "Ein Community-Projekt, das nicht zu Stremio gehört. Die IPAs kommen von Stremios öffentlichem CDN unter ",
+                "footer.cdn.after": "; hier liegen nur die Metadaten, die darauf verweisen.",
+                "footer.resign": "Mit einer kostenlosen Apple ID signierte Apps lassen sich nach sieben Tagen nicht mehr öffnen – dann musst du sie neu signieren.",
+                "footer.link": "Quellcode lesen oder ein Problem auf GitHub melden"
+          },
+          "ru": {
+                "meta.title": "Stremio — неофициальный источник для AltStore",
+                "meta.description": "Stremio для iPhone, iPad и Apple TV в обход App Store. Источник сообщества для AltStore и SideStore: сборки берутся с серверов Stremio, проверка каждые шесть часов.",
+                "ident.kind": "Неофициальный источник",
+                "nav.github": "Исходный код на GitHub",
+                "lang.label": "Язык",
+                "hero.h1": "Stremio на iPhone, iPad и Apple TV",
+                "hero.lead": "Stremio собирает приложения для iOS и tvOS и выкладывает их у себя на серверах, но в App Store не публикует. Здесь есть все сборки, а проверка идёт каждые шесть часов — новая версия появляется в AltStore или SideStore сразу после выхода.",
+                "fresh.title": "Проверка идёт каждые шесть часов",
+                "fresh.static": "Проверка каждые шесть часов",
+                "fresh.checked": "Проверено {time}",
+                "fresh.last": "Последняя проверка — {time}",
+                "fresh.stopped": "Последняя проверка — {time}; похоже, обновления остановились",
+                "fresh.succeeded": "Последняя успешная проверка — {date}",
+                "time.justNow": "только что",
+                "time.minutes": {
+                      "one": "{n} минуту назад",
+                      "few": "{n} минуты назад",
+                      "many": "{n} минут назад"
+                },
+                "time.hours": {
+                      "one": "{n} час назад",
+                      "few": "{n} часа назад",
+                      "many": "{n} часов назад"
+                },
+                "time.days": {
+                      "one": "{n} день назад",
+                      "few": "{n} дня назад",
+                      "many": "{n} дней назад"
+                },
+                "ios.h2": "iPhone и iPad",
+                "spec.build": "Сборка",
+                "spec.released": "Дата выхода",
+                "spec.size": "Размер",
+                "source.label": "Ссылка на источник",
+                "action.copy": "Копировать",
+                "action.copied": "Скопировано",
+                "action.addAlt": "Добавить в AltStore",
+                "action.addSide": "Добавить в SideStore",
+                "aside.ios.lead": "Ставите через Feather, ESign или Scarlet?",
+                "aside.ios.rest": "Добавьте ссылку выше в раздел «Источники» самого приложения.",
+                "notes.summary": "Что нового",
+                "tvos.h2": "Apple TV",
+                "tvos.buildWord": "сборка",
+                "aside.tvos.lead": "Настраиваете прямо на телевизоре?",
+                "aside.tvos.rest": "На tvOS буфера обмена нет, так что ссылку придётся набрать с пульта вручную.",
+                "releases.h2": "Все версии",
+                "releases.lead": "Таблица строится прямо из файлов источника — это те же данные, которые видит AltStore. Сами IPA скачиваются с серверов Stremio. Где есть описание изменений, строка раскрывается по нажатию; на широком экране рядом видно хеш SHA-256 — нажмите на него, чтобы скопировать целиком.",
+                "releases.loading": "Загрузка файлов источника…",
+                "releases.failed": "Не удалось загрузить файлы источника. Их можно открыть напрямую на GitHub: stremio-ios.json и stremio-tvos.json.",
+                "plat.ios": "iOS / iPadOS",
+                "plat.tvos": "Apple TV",
+                "th.version": "Версия",
+                "th.app": "Приложение",
+                "th.released": "Дата выхода",
+                "th.size": "Размер",
+                "th.fingerprint": "Хеш",
+                "tag.latest": "последняя",
+                "row.build": "сборка {n}",
+                "row.getIpa": "Скачать IPA",
+                "sha.title": "Скопировать SHA-256 целиком",
+                "sha.copied": "скопировано",
+                "count.releases": {
+                      "one": "{n} версия",
+                      "few": "{n} версии",
+                      "many": "{n} версий"
+                },
+                "count.unavailable": "Источник недоступен",
+                "value.none": "—",
+                "footer.cdn.before": "Проект сообщества, со Stremio никак не связан. Файлы IPA раздаёт публичный CDN Stremio — ",
+                "footer.cdn.after": "; в репозитории лежат только метаданные со ссылками на них.",
+                "footer.resign": "С бесплатным Apple ID подпись живёт семь дней — дальше приложение не откроется, пока его не переподпишут.",
+                "footer.link": "Посмотреть код или сообщить о проблеме на GitHub"
+          },
+          "ar": {
+                "meta.title": "Stremio — مصدر غير رسمي لـ AltStore",
+                "meta.description": "ثبّت Stremio على iPhone وiPad وApple TV من خارج App Store. مصدر مجتمعي لـ AltStore وSideStore، نراجع خوادم Stremio كل ست ساعات ونضيف كل إصدار جديد.",
+                "ident.kind": "مصدر غير رسمي",
+                "nav.github": "الكود على GitHub",
+                "lang.label": "اللغة",
+                "hero.h1": "Stremio على iPhone وiPad وApple TV",
+                "hero.lead": "تطبيقات Stremio لأجهزة Apple موجودة على خوادم Stremio نفسها، لكنها ليست على App Store. نراجع هذه الخوادم كل ست ساعات ونضيف كل إصدار جديد إلى هذا المصدر، فيصل إليك في AltStore أو SideStore بعد صدوره بساعات.",
+                "fresh.title": "نفحص الخوادم كل ست ساعات",
+                "fresh.static": "الفحص كل ست ساعات",
+                "fresh.checked": "تم الفحص {time}",
+                "fresh.last": "آخر فحص {time}",
+                "fresh.stopped": "آخر فحص {time} — قد تكون التحديثات توقّفت",
+                "fresh.succeeded": "آخر فحص ناجح: {date}",
+                "time.justNow": "قبل لحظات",
+                "time.minutes": {
+                      "one": "قبل دقيقة",
+                      "two": "قبل دقيقتين",
+                      "few": "قبل {n} دقائق",
+                      "many": "قبل {n} دقيقة",
+                      "other": "قبل {n} دقيقة"
+                },
+                "time.hours": {
+                      "one": "قبل ساعة",
+                      "two": "قبل ساعتين",
+                      "few": "قبل {n} ساعات",
+                      "many": "قبل {n} ساعة",
+                      "other": "قبل {n} ساعة"
+                },
+                "time.days": {
+                      "one": "قبل يوم",
+                      "two": "قبل يومين",
+                      "few": "قبل {n} أيام",
+                      "many": "قبل {n} يومًا",
+                      "other": "قبل {n} يوم"
+                },
+                "ios.h2": "iPhone وiPad",
+                "spec.build": "رقم البناء",
+                "spec.released": "تاريخ الإصدار",
+                "spec.size": "الحجم",
+                "source.label": "رابط المصدر",
+                "action.copy": "نسخ",
+                "action.copied": "تم النسخ",
+                "action.addAlt": "إضافة إلى AltStore",
+                "action.addSide": "إضافة إلى SideStore",
+                "aside.ios.lead": "تستخدم Feather أو ESign أو Scarlet؟",
+                "aside.ios.rest": "الصق الرابط أعلاه في صفحة المصادر داخل التطبيق.",
+                "notes.summary": "ما الجديد في هذه النسخة",
+                "tvos.h2": "Apple TV",
+                "tvos.buildWord": "رقم البناء",
+                "aside.tvos.lead": "هل تضبط هذا على التلفاز نفسه؟",
+                "aside.tvos.rest": "على tvOS لا يوجد لصق، لذا اكتب الرابط بنفسك حرفًا بحرف.",
+                "releases.h2": "كل الإصدارات",
+                "releases.lead": "نقرأ هذه القائمة من ملفات المصدر نفسها، أي أنها تعرض ما يعرضه AltStore عندك بالضبط، والتنزيل يأتي من خوادم Stremio مباشرة. اضغط أي صف فيه سجل تغييرات ليتوسّع، وعلى الشاشات العريضة يظهر في كل صف بصمة SHA-256 لملف IPA — اضغط البصمة لنسخها كاملة.",
+                "releases.loading": "جارٍ قراءة ملفات المصدر…",
+                "releases.failed": "لم نتمكّن من قراءة ملفات المصدر. يمكنك فتح stremio-ios.json أو stremio-tvos.json على GitHub والاطلاع عليها مباشرة.",
+                "plat.ios": "iOS / iPadOS",
+                "plat.tvos": "Apple TV",
+                "th.version": "النسخة",
+                "th.app": "التطبيق",
+                "th.released": "التاريخ",
+                "th.size": "الحجم",
+                "th.fingerprint": "البصمة",
+                "tag.latest": "الأحدث",
+                "row.build": "رقم البناء {n}",
+                "row.getIpa": "تنزيل IPA",
+                "sha.title": "انسخ بصمة SHA-256 كاملة",
+                "sha.copied": "نُسخت",
+                "count.releases": {
+                      "one": "إصدار واحد",
+                      "two": "إصداران",
+                      "few": "{n} إصدارات",
+                      "many": "{n} إصدارًا",
+                      "other": "{n} إصدار"
+                },
+                "count.unavailable": "ملف المصدر غير متوفّر",
+                "value.none": "—",
+                "footer.cdn.before": "مشروع مجتمعي لا علاقة له بشركة Stremio. ملفات IPA نفسها تأتي من خوادم Stremio العامة على ",
+                "footer.cdn.after": "، وهذا المستودع ينشر البيانات الوصفية التي تشير إليها فقط.",
+                "footer.resign": "التوقيع بحساب Apple ID مجاني يصلح لسبعة أيام فقط، وبعدها يتوقف التطبيق عن الفتح حتى تعيد توقيعه.",
+                "footer.link": "اقرأ الكود أو أبلِغ عن مشكلة على GitHub"
+          }
+    };
+
+    var LANG = "en";
+    function langDef(code) {
+      for (var i = 0; i < LANGS.length; i++) if (LANGS[i].code === code) return LANGS[i];
+      return LANGS[0];
+    }
+
+    // The system language, as the browser reports it. navigator.languages is
+    // in the visitor's own order of preference, so the first entry we carry
+    // wins; a region tag (pt-BR, de-AT) matches on its base. Anything we
+    // don't carry falls through to English.
+    function detectLang() {
+      var saved;
+      try { saved = localStorage.getItem("lang"); } catch (e) { saved = null; }
+      if (saved && STRINGS[saved]) return saved;
+
+      var wanted = navigator.languages && navigator.languages.length
+        ? navigator.languages : [navigator.language || "en"];
+      for (var i = 0; i < wanted.length; i++) {
+        var base = String(wanted[i] || "").toLowerCase().split("-")[0];
+        if (STRINGS[base]) return base;
+      }
+      return "en";
+    }
+
+    // CLDR plural categories, for the four countable strings. Russian and
+    // Arabic need more than one/other, and getting this wrong is exactly
+    // what makes a translated page feel machine-made.
+    function pluralCat(lang, n) {
+      n = Math.abs(Number(n) || 0);
+      var m10 = n % 10, m100 = n % 100;
+      if (lang === "ru") {
+        if (m10 === 1 && m100 !== 11) return "one";
+        if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "few";
+        return "many";
+      }
+      if (lang === "ar") {
+        if (n === 1) return "one";
+        if (n === 2) return "two";
+        if (m100 >= 3 && m100 <= 10) return "few";
+        if (m100 >= 11 && m100 <= 99) return "many";
+        return "other";
+      }
+      return n === 1 ? "one" : "other";
+    }
+
+    function t(key, vars) {
+      var val = (STRINGS[LANG] || {})[key];
+      if (val === undefined) val = STRINGS.en[key];
+      if (val && typeof val === "object") {
+        var cat = pluralCat(LANG, vars && vars.n != null ? vars.n : 0);
+        var pick = val[cat];
+        if (pick === undefined) pick = val.other;
+        if (pick === undefined) pick = val.many;
+        if (pick === undefined) pick = val.one;
+        val = pick;
+      }
+      if (typeof val !== "string") return key;
+      if (vars) {
+        for (var k in vars) {
+          if (Object.prototype.hasOwnProperty.call(vars, k)) {
+            val = val.split("{" + k + "}").join(String(vars[k]));
+          }
+        }
+      }
+      return val;
+    }
+
+    // Plus Jakarta Sans carries no Arabic, and the system fallbacks differ
+    // enough between platforms to change the page's weight and rhythm. Pull
+    // a matching Arabic face — but only for the visitors who need it.
+    var arabicFontAsked = false;
+    function ensureArabicFont() {
+      if (arabicFontAsked) return;
+      arabicFontAsked = true;
+      var l = document.createElement("link");
+      l.rel = "stylesheet";
+      l.href = "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap";
+      document.head.appendChild(l);
+    }
+
+    function applyLang(code, remember) {
+      LANG = STRINGS[code] ? code : "en";
+      var def = langDef(LANG);
+      if (remember) { try { localStorage.setItem("lang", LANG); } catch (e) {} }
+      if (def.rtl) ensureArabicFont();
+
+      var html = document.documentElement;
+      html.setAttribute("lang", LANG);
+      html.setAttribute("dir", def.rtl ? "rtl" : "ltr");
+
+      document.title = t("meta.title");
+      var desc = document.querySelector('meta[name="description"]');
+      if (desc) desc.setAttribute("content", t("meta.description"));
+
+      Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), function (el) {
+        el.textContent = t(el.getAttribute("data-i18n"));
+      });
+      Array.prototype.forEach.call(document.querySelectorAll("[data-i18n-title]"), function (el) {
+        el.title = t(el.getAttribute("data-i18n-title"));
+      });
+
+      document.getElementById("langpick-cur").textContent = def.native;
+      document.getElementById("langpick-btn").setAttribute("aria-label", t("lang.label"));
+      Array.prototype.forEach.call(document.querySelectorAll(".langpick-opt"), function (opt) {
+        opt.setAttribute("aria-selected", opt.dataset.code === LANG ? "true" : "false");
+      });
+
+      renderFreshness();
+      renderData();
+    }
+
+    (function buildLangMenu() {
+      var menu = document.getElementById("langpick-menu");
+      var btn = document.getElementById("langpick-btn");
+      var wrap = document.getElementById("langpick");
+
+      LANGS.forEach(function (l) {
+        var li = document.createElement("li");
+        var opt = document.createElement("button");
+        opt.type = "button";
+        opt.className = "langpick-opt";
+        opt.setAttribute("role", "option");
+        opt.dataset.code = l.code;
+        // lang, but deliberately not dir: an isolated Arabic word shapes
+        // correctly on its own, and dir="rtl" would push this one label to
+        // the far edge while the other six stay left.
+        opt.lang = l.code;
+        opt.appendChild(document.createTextNode(l.native));
+        var tick = document.createElement("span");
+        tick.className = "tick";
+        tick.setAttribute("aria-hidden", "true");
+        opt.appendChild(tick);
+        opt.addEventListener("click", function () {
+          applyLang(l.code, true);
+          close(true);
+        });
+        li.appendChild(opt);
+        menu.appendChild(li);
+      });
+
+      var opts = function () { return menu.querySelectorAll(".langpick-opt"); };
+      function open(focusWhich) {
+        menu.hidden = false;
+        btn.setAttribute("aria-expanded", "true");
+        var list = opts();
+        var start = 0;
+        for (var i = 0; i < list.length; i++) if (list[i].dataset.code === LANG) start = i;
+        if (focusWhich === "last") start = list.length - 1;
+        if (list[start]) list[start].focus();
+      }
+      function close(refocus) {
+        menu.hidden = true;
+        btn.setAttribute("aria-expanded", "false");
+        if (refocus) btn.focus();
+      }
+      function move(step) {
+        var list = opts(), at = -1;
+        for (var i = 0; i < list.length; i++) if (list[i] === document.activeElement) at = i;
+        var next = (at + step + list.length) % list.length;
+        list[next].focus();
+      }
+
+      btn.addEventListener("click", function () {
+        if (menu.hidden) open(); else close(true);
+      });
+      btn.addEventListener("keydown", function (ev) {
+        if (ev.key === "ArrowDown" || ev.key === "Enter" || ev.key === " ") {
+          ev.preventDefault(); if (menu.hidden) open(); else move(1);
+        } else if (ev.key === "ArrowUp") {
+          ev.preventDefault(); open("last");
+        }
+      });
+      menu.addEventListener("keydown", function (ev) {
+        if (ev.key === "Escape") { ev.preventDefault(); close(true); }
+        else if (ev.key === "ArrowDown") { ev.preventDefault(); move(1); }
+        else if (ev.key === "ArrowUp") { ev.preventDefault(); move(-1); }
+        else if (ev.key === "Home") { ev.preventDefault(); opts()[0].focus(); }
+        else if (ev.key === "End") { ev.preventDefault(); var l = opts(); l[l.length - 1].focus(); }
+        else if (ev.key === "Tab") { close(false); }
+      });
+      document.addEventListener("click", function (ev) {
+        if (!menu.hidden && !wrap.contains(ev.target)) close(false);
+      });
+    })();
+
+    /* ================================================================== */
 
     // Older builds still carry the generated placeholder ("Stremio 2.0.4
     // (build 19)."), which is not worth showing as release notes.
@@ -519,19 +1356,46 @@
 
     function relativeTime(ms) {
       var mins = Math.round(ms / 60000);
-      if (mins < 2) return "just now";
-      if (mins < 60) return mins + " minutes ago";
+      if (mins < 2) return t("time.justNow");
+      if (mins < 60) return t("time.minutes", { n: mins });
       var hours = Math.round(mins / 60);
-      if (hours < 24) return hours === 1 ? "an hour ago" : hours + " hours ago";
+      if (hours < 24) return t("time.hours", { n: hours });
       var days = Math.round(hours / 24);
-      return days === 1 ? "a day ago" : days + " days ago";
+      return t("time.days", { n: days });
     }
 
     // Make the freshness mark earned rather than decorative: ask GitHub when
     // the updater last completed successfully. Read-only, no token, and the
     // page keeps its static text if the call fails or the unauthenticated
-    // rate limit is reached.
-    (function showFreshness() {
+    // rate limit is reached. The answer is kept rather than re-fetched, so
+    // switching language re-words it from the same reading.
+    var FRESH = null;
+    function renderFreshness() {
+      if (!FRESH) return;
+      var badge = document.getElementById("freshness");
+      var dot = document.getElementById("freshness-dot");
+      var text = document.getElementById("freshness-text");
+      var age = Date.now() - FRESH.at;
+      if (!(age >= 0)) return;
+      var hours = age / 3600000;
+
+      badge.classList.remove("warn", "stale");
+      dot.classList.remove("warn", "stale");
+      // Runs every 6 hours, so under 12 means at most one missed cycle.
+      if (hours < 12) {
+        text.textContent = t("fresh.checked", { time: relativeTime(age) });
+      } else if (hours < 48) {
+        badge.classList.add("warn"); dot.classList.add("warn");
+        text.textContent = t("fresh.last", { time: relativeTime(age) });
+      } else {
+        badge.classList.add("stale"); dot.classList.add("stale");
+        text.textContent = t("fresh.stopped", { time: relativeTime(age) });
+      }
+      badge.title = t("fresh.succeeded", {
+        date: new Date(FRESH.at).toLocaleString(langDef(LANG).locale)
+      });
+    }
+    (function askFreshness() {
       var RUNS = "https://api.github.com/repos/gorlev/stremio-altstore/actions/workflows/update.yml/runs"
                + "?status=success&per_page=1";
       fetch(RUNS, { headers: { Accept: "application/vnd.github+json" } })
@@ -539,35 +1403,25 @@
         .then(function (d) {
           var run = d && d.workflow_runs && d.workflow_runs[0];
           if (!run || !run.updated_at) return;
-          var age = Date.now() - new Date(run.updated_at).getTime();
-          if (!(age >= 0)) return;
-
-          var badge = document.getElementById("freshness");
-          var dot = document.getElementById("freshness-dot");
-          var text = document.getElementById("freshness-text");
-          var hours = age / 3600000;
-          // Runs every 6 hours, so under 12 means at most one missed cycle.
-          if (hours < 12) {
-            text.textContent = "Checked " + relativeTime(age);
-          } else if (hours < 48) {
-            badge.classList.add("warn"); dot.classList.add("warn");
-            text.textContent = "Last checked " + relativeTime(age);
-          } else {
-            badge.classList.add("stale"); dot.classList.add("stale");
-            text.textContent = "Last checked " + relativeTime(age) + " — updates may have stopped";
-          }
-          badge.title = "The updater last succeeded " + new Date(run.updated_at).toLocaleString();
+          FRESH = { at: new Date(run.updated_at).getTime() };
+          renderFreshness();
         })
         .catch(function () { /* keep the static text */ });
     })();
 
+    // Wrapped in a left-to-right isolate: without it "84.2 MB" is laid out
+    // by the bidi algorithm as "MB 84.2" once the page runs right to left.
     function fmtMB(bytes) {
-      return bytes > 0 ? (bytes / 1048576).toFixed(1) + " MB" : "—";
+      if (!(bytes > 0)) return t("value.none");
+      var n = (bytes / 1048576).toLocaleString(langDef(LANG).locale,
+        { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+      return "\u2066" + n + " MB\u2069";
     }
     function fmtDate(iso) {
-      if (!iso) return "—";
+      if (!iso) return t("value.none");
       var d = new Date(iso + "T00:00:00Z");
-      return isNaN(d) ? iso : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+      return isNaN(d) ? iso : d.toLocaleDateString(langDef(LANG).locale,
+        { month: "short", day: "numeric", year: "numeric" });
     }
     // Row cells are built as DOM nodes, not an innerHTML string. Everything
     // rendered here comes from the JSON sources and the publish gate does
@@ -596,18 +1450,18 @@
     function safeIpaURL(url) {
       return (typeof url === "string" && /^https:\/\/dl\.strem\.io\//.test(url)) ? url : null;
     }
-    function bindCopy(el, getText) {
+    function bindCopy(el, getText, labelKey) {
       el.addEventListener("click", function () {
-        var t = getText();
         var done = function () {
           el.classList.add("done");
-          var old = el.dataset.label || el.textContent;
-          el.dataset.label = old;
-          el.textContent = el.classList.contains("sha") ? "copied" : "Copied";
-          setTimeout(function () { el.textContent = el.dataset.label; el.classList.remove("done"); }, 1500);
+          el.textContent = t(labelKey === "sha.copied" ? "sha.copied" : "action.copied");
+          setTimeout(function () {
+            el.textContent = t(labelKey === "sha.copied" ? el.dataset.idle : "action.copy");
+            el.classList.remove("done");
+          }, 1500);
         };
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(t).then(done, done);
+          navigator.clipboard.writeText(getText()).then(done, done);
         } else { done(); }
       });
     }
@@ -623,47 +1477,29 @@
       bindCopy(btn, function () { return document.getElementById(btn.dataset.copy).textContent; });
     });
 
-    // Live data
+    // Live data. Sorted and shaped once; drawing it is a separate step so a
+    // language change can redraw from the same reading.
     var groupsEl = document.getElementById("version-groups");
-    Promise.all(PLATFORMS.map(function (p) {
-      return fetch(p.json, { cache: "no-cache" }).then(function (r) { return r.json(); })
-        .then(function (d) { return { plat: p, data: d }; })
-        .catch(function () { return { plat: p, data: null }; });
-    })).then(function (results) {
+    var DATA = null;
+
+    function renderData() {
+      if (!DATA) return;
       groupsEl.innerHTML = "";
-      results.forEach(function (res) {
-        var p = res.plat, d = res.data;
-        if (!d) {
-          setText("meta-" + p.key, "Source file unavailable");
+      DATA.forEach(function (res) {
+        var p = res.plat, all = res.all;
+        if (!all) {
+          setText("meta-" + p.key, t("count.unavailable"));
           return;
         }
-        var apps = d.apps || [];
-        var all = [];
-        apps.forEach(function (a) {
-          (a.versions || []).forEach(function (v) { all.push({ app: a, v: v }); });
-        });
-        // newest first across apps
-        all.sort(function (x, y) {
-          var pk = function (e) {
-            return (e.v.version || "").split(".").map(function (n) { return +n || 0; })
-              .concat([+(e.v.buildVersion || 0)]);
-          };
-          var a = pk(x), b = pk(y);
-          for (var i = 0; i < Math.max(a.length, b.length); i++) {
-            if ((b[i] || 0) !== (a[i] || 0)) return (b[i] || 0) - (a[i] || 0);
-          }
-          return 0;
-        });
 
         // the entry at the top of the page: newest build and its specification
         if (all.length) {
           var top = all[0];
           setText("latest-" + p.key, top.v.version);
-          setText("build-" + p.key, top.v.buildVersion || "—");
+          setText("build-" + p.key, top.v.buildVersion || t("value.none"));
           setText("date-" + p.key, fmtDate(top.v.date));
           setText("size-" + p.key, fmtMB(top.v.size));
-          setText("meta-" + p.key,
-            all.length === 1 ? "1 release" : all.length + " releases");
+          setText("meta-" + p.key, t("count.releases", { n: all.length }));
 
           // Real changelog, when we managed to capture one for this build.
           var notes = top.v.localizedDescription;
@@ -678,14 +1514,24 @@
         var g = document.createElement("div");
         g.className = "vgroup";
         var h3 = document.createElement("h3");
-        h3.textContent = p.label;
+        h3.textContent = t(p.labelKey);
         g.appendChild(h3);
         var scroll = document.createElement("div");
         scroll.className = "vt-scroll";
-        var t = document.createElement("table");
-        t.className = "vt";
-        t.innerHTML = "<thead><tr><th>Version</th><th>App</th><th>Released</th>"
-                    + "<th class='num'>Size</th><th>Fingerprint</th><th></th></tr></thead>";
+        var t_ = document.createElement("table");
+        t_.className = "vt";
+        var thead = document.createElement("thead");
+        var htr = document.createElement("tr");
+        [["th.version", ""], ["th.app", ""], ["th.released", ""],
+         ["th.size", "num"], ["th.fingerprint", ""], [null, ""]].forEach(function (h) {
+          var th = document.createElement("th");
+          if (h[1]) th.className = h[1];
+          th.textContent = h[0] ? t(h[0]) : "";
+          htr.appendChild(th);
+        });
+        thead.appendChild(htr);
+        t_.appendChild(thead);
+
         var tb = document.createElement("tbody");
         all.forEach(function (e, i) {
           var tr = document.createElement("tr");
@@ -694,8 +1540,8 @@
           var cVer = addCell(tr, "ver");
           if (notes) cVer.appendChild(span("tri-row", ""));
           cVer.appendChild(document.createTextNode(e.v.version + " "));
-          cVer.appendChild(span("build", "build " + e.v.buildVersion));
-          if (i === 0) cVer.appendChild(span("now", "latest"));
+          cVer.appendChild(span("build", t("row.build", { n: e.v.buildVersion })));
+          if (i === 0) cVer.appendChild(span("now", t("tag.latest")));
 
           addCell(tr, "dim").textContent = e.app.name || "";
           addCell(tr, "dim").textContent = fmtDate(e.v.date);
@@ -705,12 +1551,15 @@
           if (sha) {
             var shaBtn = document.createElement("button");
             shaBtn.className = "sha";
-            shaBtn.title = "Copy the full SHA-256";
-            shaBtn.textContent = sha.slice(0, 10) + "…";
+            shaBtn.title = t("sha.title");
+            // Isolated for the same reason as the size: the trailing ellipsis
+            // would otherwise jump to the head of the hash in Arabic.
+            shaBtn.textContent = "\u2066" + sha.slice(0, 10) + "…\u2069";
+            shaBtn.dataset.idle = shaBtn.textContent;
             cSha.appendChild(shaBtn);
-            bindCopy(shaBtn, function () { return sha; });
+            bindCopy(shaBtn, function () { return sha; }, "sha.copied");
           } else {
-            cSha.appendChild(span("dim", "—"));
+            cSha.appendChild(span("dim", t("value.none")));
           }
 
           var cDl = addCell(tr, "");
@@ -719,10 +1568,10 @@
             var dl = document.createElement("a");
             dl.className = "dl";
             dl.href = href;
-            dl.textContent = "Get IPA";
+            dl.textContent = t("row.getIpa");
             cDl.appendChild(dl);
           } else {
-            cDl.appendChild(span("dim", "—"));
+            cDl.appendChild(span("dim", t("value.none")));
           }
           tb.appendChild(tr);
 
@@ -768,16 +1617,49 @@
             });
           }
         });
-        t.appendChild(tb);
-        scroll.appendChild(t);
+        t_.appendChild(tb);
+        scroll.appendChild(t_);
         g.appendChild(scroll);
         groupsEl.appendChild(g);
       });
       if (!groupsEl.children.length) {
-        groupsEl.innerHTML = "<div class='loading'>The source files didn't load. "
-          + "Open stremio-ios.json or stremio-tvos.json on GitHub to read them directly.</div>";
+        var fail = document.createElement("div");
+        fail.className = "loading";
+        fail.textContent = t("releases.failed");
+        groupsEl.appendChild(fail);
       }
+    }
+
+    Promise.all(PLATFORMS.map(function (p) {
+      return fetch(p.json, { cache: "no-cache" }).then(function (r) { return r.json(); })
+        .then(function (d) { return { plat: p, data: d }; })
+        .catch(function () { return { plat: p, data: null }; });
+    })).then(function (results) {
+      DATA = results.map(function (res) {
+        if (!res.data) return { plat: res.plat, all: null };
+        var all = [];
+        (res.data.apps || []).forEach(function (a) {
+          (a.versions || []).forEach(function (v) { all.push({ app: a, v: v }); });
+        });
+        // newest first across apps
+        all.sort(function (x, y) {
+          var pk = function (e) {
+            return (e.v.version || "").split(".").map(function (n) { return +n || 0; })
+              .concat([+(e.v.buildVersion || 0)]);
+          };
+          var a = pk(x), b = pk(y);
+          for (var i = 0; i < Math.max(a.length, b.length); i++) {
+            if ((b[i] || 0) !== (a[i] || 0)) return (b[i] || 0) - (a[i] || 0);
+          }
+          return 0;
+        });
+        return { plat: res.plat, all: all };
+      });
+      renderData();
     });
+
+    // Last, so every renderer above exists before the first pass runs.
+    applyLang(detectLang(), false);
   </script>
 </body>
 </html>
