@@ -45,14 +45,6 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Cache pip
-        uses: actions/cache@v6
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
       - name: Run the test suite
         # Under a second, no network. Covers the publish gate, the prune
         # safety rails, the IPA parser and the discovery logic — the parts
