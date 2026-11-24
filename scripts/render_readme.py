@@ -86,7 +86,7 @@ def _app_table(app: dict) -> str:
         date = v.get("date", "?")
         size = _mb(v.get("size"))
         url = v.get("downloadURL", "")
-        download = f"[IPA]({url})" if url else "—"
+        download = f"[IPA]({url})" if url else "n/a"
         rows.append(f"| {version} | {build} | {date} | {size} | {download} |")
     return "\n".join(rows)
 
@@ -99,14 +99,14 @@ def build_block() -> str:
     sections: list[str] = []
     for plat in PLATFORMS:
         data = _load(plat)
-        sections.append(f"### {plat['heading']} — `{plat['json']}`")
+        sections.append(f"### {plat['heading']}: `{plat['json']}`")
         for app in data.get("apps", []):
             name = app.get("name", "App")
             bundle = app.get("bundleIdentifier", "")
             annotation = BUNDLE_ANNOTATION.get(bundle, "")
             header = f"#### {name} {annotation}".rstrip()
             if bundle:
-                header += f" — `{bundle}`"
+                header += f": `{bundle}`"
             sections.append(header)
             sections.append(_app_table(app))
     return "\n\n".join(sections)

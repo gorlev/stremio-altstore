@@ -1,76 +1,70 @@
-# Stremio — Unofficial AltStore Source
+# Stremio Unofficial AltStore Source
 
 [![Update source](https://github.com/gorlev/stremio-altstore/actions/workflows/update.yml/badge.svg)](https://github.com/gorlev/stremio-altstore/actions/workflows/update.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Stremio iOS versions](https://img.shields.io/badge/iOS-12%20versions-7055D9)](stremio-ios.json)
 [![Stremio tvOS versions](https://img.shields.io/badge/tvOS-12%20versions-7055D9)](stremio-tvos.json)
 
-An **unofficial** AltStore-format source collection for Stremio iOS and tvOS, compatible with any signing app that consumes the standard AltStore source format — Feather, AltStore Classic, AltStore PAL, ESign, Scarlet, Sideloadly, and others. Stremio's official source at [`dl.strem.io/apple/altstore/source.json`](https://dl.strem.io/apple/altstore/source.json) cannot be parsed by most third-party signing apps because it uses Apple's encrypted App Store Connect manifest format — this repo publishes standard AltStore-format JSON sources that point to Stremio's plain IPA artifacts.
+An unofficial AltStore-format source for Stremio on iOS, iPadOS and tvOS, usable by any signing app that reads the standard AltStore source format.
+
+Stremio's official source at [`dl.strem.io/apple/altstore/source.json`](https://dl.strem.io/apple/altstore/source.json) uses Apple's encrypted App Store Connect manifest format, which most third-party signing apps cannot parse. This repository publishes standard AltStore JSON sources that point at Stremio's plain IPA artifacts on the same CDN.
 
 ## Table of contents
 
-- [Why does this repo exist?](#why-does-this-repo-exist)
+- [Background](#background)
 - [Compatible signing apps](#compatible-signing-apps)
 - [Quick start](#quick-start)
-- [Self-host your own copy](#self-host-your-own-copy)
+- [Self-hosting](#self-hosting)
 - [Available versions](#available-versions)
 - [Release mirror](#release-mirror)
-- [Automatic updates](#automatic-updates)
+- [Automation](#automation)
 - [Manual updates](#manual-updates)
-- [Architecture](#architecture)
+- [Repository layout](#repository-layout)
+- [Design notes](#design-notes)
 - [Limitations](#limitations)
 - [Contributing](#contributing)
 - [License and attribution](#license-and-attribution)
 
----
+## Background
 
-## Why does this repo exist?
+Since June 2026, Stremio distributes its iOS builds through Apple's App Store Connect marketplace format. That format packages IPAs as encrypted variant chunks, ships a `manifest.json` metadata file, and grants the decryption key only to AltStore PAL. Signing apps such as Feather, ESign, Scarlet and Sideloadly cannot read it, so importing the official source yields "no apps", "invalid format" or "failed to download".
 
-Starting in June 2026, Stremio moved iOS distribution entirely to Apple's **App Store Connect marketplace** format. This format:
-
-1. Packages IPAs as encrypted variant chunks
-2. Distributes a `manifest.json` metadata file
-3. Grants the decryption key only to AltStore PAL
-
-Most third-party signing apps (Feather, ESign, Scarlet, Sideloadly, etc.) cannot break this encryption, so importing the official source results in "no apps", "invalid format", or "failed to download" errors.
-
-However, Stremio keeps the plain IPA files **publicly available on the same CDN**:
+The plain IPA files remain publicly available on the same CDN:
 
 ```
 https://dl.strem.io/apple/{X.Y.Z}b{buildN}/{ios|tvos}/stremio_{Platform}.ipa
 ```
 
-This repo discovers those IPAs and writes them into standard AltStore-format JSON sources.
+This repository discovers those IPAs and writes them into standard AltStore-format JSON sources.
 
-> 📜 Related discussions:
-> - [Stremio #2384 — Publish Stremio iOS on AltStore as an official source](https://github.com/Stremio/stremio-bugs/issues/2384)
-> - [Stremio blog — Sideloadable IPA Release](https://blog.stremio.com/stremio-fully-featured-sideloadable-ipa-release-for-ios-ipados-apple-tv-tvos/)
-> - [@blksmr — original unofficial source](https://github.com/blksmr/altstore-stremio)
+Related discussions:
 
----
+- [Stremio #2384: Publish Stremio iOS on AltStore as an official source](https://github.com/Stremio/stremio-bugs/issues/2384)
+- [Stremio blog: Sideloadable IPA release](https://blog.stremio.com/stremio-fully-featured-sideloadable-ipa-release-for-ios-ipados-apple-tv-tvos/)
+- [@blksmr/altstore-stremio: the original unofficial source](https://github.com/blksmr/altstore-stremio)
 
 ## Compatible signing apps
 
-Any signing app that consumes the standard AltStore source format can use this repo. Tested or known-compatible apps include:
+Any app that accepts a source URL pointing to an `apps.json`-style document will work. Known-compatible apps:
 
-- **[Feather](https://github.com/claration/Feather)** — open-source on-device signer
-- **[AltStore Classic](https://altstore.io)** — the original desktop-paired signer (requires AltServer on a Mac/PC)
-- **[AltStore PAL](https://altstore.io)** — AltStore's European Union alternative marketplace
-- **[ESign](https://github.com/jakepoz/esign)** — popular on-device signer
-- **[Scarlet](https://usescarlet.com)** — on-device IPA installer
-- **[Sideloadly](https://sideloadly.io)** — desktop-based sideloader with source support
+| App | Type |
+|---|---|
+| [Feather](https://github.com/claration/Feather) | Open-source on-device signer |
+| [AltStore Classic](https://altstore.io) | Desktop-paired signer, requires AltServer |
+| [AltStore PAL](https://altstore.io) | EU alternative marketplace |
+| [ESign](https://github.com/jakepoz/esign) | On-device signer |
+| [Scarlet](https://usescarlet.com) | On-device IPA installer |
+| [Sideloadly](https://sideloadly.io) | Desktop sideloader with source support |
 
-If your signing app supports adding a source by URL pointing to an `apps.json`-style document, it will work. If you find an app that does not work, please open an issue.
-
----
+If a signing app fails to parse these sources, please open an issue with the error message.
 
 ## Quick start
 
-**No fork required.** This source is already hosted and auto-updated every 6 hours. Just add it to your signing app.
+No fork is required. The source is hosted and updated automatically every six hours.
 
 ### One-tap install
 
-Open this page **on your iPhone / iPad** and tap your app — the source opens prefilled:
+Open the install page on your iPhone or iPad and select your app. The source opens prefilled:
 
 <p align="center">
   <a href="https://gorlev.github.io/stremio-altstore/install.html">
@@ -85,20 +79,20 @@ Direct deep links (tap on-device, or paste into Safari):
 | iOS / iPadOS | [Open in AltStore](altstore://source?url=https://gorlev.github.io/stremio-altstore/stremio-ios.json) | [Open in SideStore](sidestore://source?url=https://gorlev.github.io/stremio-altstore/stremio-ios.json) |
 | tvOS | [Open in AltStore](altstore://source?url=https://gorlev.github.io/stremio-altstore/stremio-tvos.json) | [Open in SideStore](sidestore://source?url=https://gorlev.github.io/stremio-altstore/stremio-tvos.json) |
 
-> GitHub strips `altstore://`-style links in this README, so the table links only work once pasted into Safari. The **Add to AltStore / SideStore** button above routes through a landing page and works directly.
+GitHub strips `altstore://`-style links in this README, so the table links work only after being pasted into Safari. The button above routes through a landing page and works directly.
 
-### Or add the URL manually
+### Adding the URL manually
 
-Works with **any** signing app (Feather, AltStore Classic/PAL, ESign, Scarlet, Sideloadly…). Paste the URL into the app's **Sources** / **Repositories** section:
+Paste the URL into the **Sources** or **Repositories** section of any signing app:
 
 | Platform | Source URL |
 |---|---|
 | iOS / iPadOS | `https://gorlev.github.io/stremio-altstore/stremio-ios.json` |
 | tvOS | `https://gorlev.github.io/stremio-altstore/stremio-tvos.json` |
 
-Once added, Stremio appears in the app's source list. Pick a version and tap **Get** (or the equivalent) to download and sign.
+Stremio then appears in the app's source list. Pick a version and select **Get** to download and sign it.
 
-### Alternative: raw GitHub URL (no Pages)
+### Raw GitHub URLs
 
 `sourceURL` also works with `raw.githubusercontent.com`:
 
@@ -107,33 +101,29 @@ https://raw.githubusercontent.com/gorlev/stremio-altstore/main/stremio-ios.json
 https://raw.githubusercontent.com/gorlev/stremio-altstore/main/stremio-tvos.json
 ```
 
-Some signing apps require the `Content-Type: application/json` header, which GitHub Pages guarantees; raw URLs occasionally delay that header — prefer the `gorlev.github.io` URLs above.
+Some signing apps require a `Content-Type: application/json` header. GitHub Pages always sends it, raw URLs occasionally do not, so the `gorlev.github.io` URLs are preferred.
 
----
+## Self-hosting
 
-## Self-host your own copy
+To run your own copy with its own URL and schedule:
 
-Prefer to run your own source (own URL, own update schedule)? Fork and host it in a couple of minutes:
-
-1. **Fork** this repository.
-2. Enable Pages: **Settings → Pages → Source: Deploy from a branch → Branch: `main` / `(root)`**. After a few minutes your sources are live at `https://<your-github-username>.github.io/stremio-altstore/stremio-{ios,tvos}.json`.
+1. Fork this repository.
+2. Enable Pages under **Settings > Pages > Source: Deploy from a branch > Branch: `main` / `(root)`**. The sources become available at `https://<username>.github.io/stremio-altstore/stremio-{ios,tvos}.json`.
 3. Point `sourceURL` at your fork:
    ```bash
    python3 stremio-updater.py \
-     --source-url-ios  "https://<your-github-username>.github.io/stremio-altstore/stremio-ios.json" \
-     --source-url-tvos "https://<your-github-username>.github.io/stremio-altstore/stremio-tvos.json"
+     --source-url-ios  "https://<username>.github.io/stremio-altstore/stremio-ios.json" \
+     --source-url-tvos "https://<username>.github.io/stremio-altstore/stremio-tvos.json"
    ```
-4. Commit the change. The included GitHub Actions workflow keeps your fork updated every 6 hours.
-
----
+4. Commit the change. The bundled GitHub Actions workflow keeps the fork updated every six hours.
 
 ## Available versions
 
 <!-- BEGIN:AVAILABLE_VERSIONS -->
 
-### iOS / iPadOS — `stremio-ios.json`
+### iOS / iPadOS: `stremio-ios.json`
 
-#### Stremio (PAL, full-featured) — `com.stremio.pal`
+#### Stremio (PAL, full-featured): `com.stremio.pal`
 
 | Version | Build | Date | Size | Download |
 |---|---|---|---|---|
@@ -150,9 +140,9 @@ Prefer to run your own source (own URL, own update schedule)? Fork and host it i
 | 2.0.2 | 17 | 2026-06-19 | 74.4 MB | [IPA](https://dl.strem.io/apple/2.0.2b17/ios/stremio_iOS.ipa) |
 | 2.0.1 | 16 | 2026-06-16 | 74.1 MB | [IPA](https://dl.strem.io/apple/2.0.1b16/ios/stremio_iOS.ipa) |
 
-### tvOS — `stremio-tvos.json`
+### tvOS: `stremio-tvos.json`
 
-#### Stremio (PAL, full-featured) — `com.stremio.pal`
+#### Stremio (PAL, full-featured): `com.stremio.pal`
 
 | Version | Build | Date | Size | Download |
 |---|---|---|---|---|
@@ -171,33 +161,24 @@ Prefer to run your own source (own URL, own update schedule)? Fork and host it i
 
 <!-- END:AVAILABLE_VERSIONS -->
 
-> 🤖 The tables above are auto-generated from the JSON sources by `scripts/render_readme.py` on every update — do not edit them by hand.
+The tables above are generated from the JSON sources by `scripts/render_readme.py` on every update. Do not edit them by hand.
 
-> 📦 Every version was verified against the IPA's Info.plist (downloaded via HTTP Range, < 5 KB each). Bundle identifiers, version strings, and `MinimumOSVersion` values were read directly from the IPAs.
-
----
+Every entry is verified against the IPA's `Info.plist`, fetched with HTTP Range requests (under 5 KB per IPA). Bundle identifiers, version strings and `MinimumOSVersion` values are read directly from the IPAs.
 
 ## Release mirror
 
-Every build listed in the sources is also mirrored into this repo's
-[Releases](https://github.com/gorlev/stremio-altstore/releases), one release per
-version **and** build:
+Every build listed in the sources is also mirrored to this repository's [Releases](https://github.com/gorlev/stremio-altstore/releases), one release per version and build:
 
 ```
 v2.1.3b28
-├── stremio_iOS.ipa      ← unmodified upstream IPA
-├── stremio_tvOS.ipa     ← unmodified upstream IPA
-└── SHA256SUMS.txt       ← the same hashes the JSON sources publish
+├── stremio_iOS.ipa      unmodified upstream IPA
+├── stremio_tvOS.ipa     unmodified upstream IPA
+└── SHA256SUMS.txt       the same hashes the JSON sources publish
 ```
 
-The IPAs are Stremio's own files, byte for byte — nothing here is built,
-repackaged or re-signed, and the mirror exists with Stremio's go-ahead. The
-sources keep pointing at `dl.strem.io`, so normal installs still come from
-upstream and the traffic stays on their CDN. The mirror answers a different
-problem: a URL on someone else's CDN is the one part of this source that can
-disappear without warning. `prune_dead.py` exists because builds *do* get
-pulled, and until now the only answer was to drop the version and strand
-whoever was running it. Now the bytes survive the pull.
+The IPAs are Stremio's own files, byte for byte. Nothing here is built, repackaged or re-signed, and the mirror exists with Stremio's go-ahead. The sources keep pointing at `dl.strem.io`, so ordinary installs still come from upstream and the traffic stays on their CDN.
+
+The mirror addresses a different problem: a URL on someone else's CDN is the one part of this source that can disappear without warning. Builds do get pulled, and the previous answer was to drop the version and strand whoever was running it. The mirrored bytes survive the pull.
 
 Verify any download against the manifest in its release:
 
@@ -205,26 +186,16 @@ Verify any download against the manifest in its release:
 shasum -a 256 -c SHA256SUMS.txt
 ```
 
-Those are the same `sha256` values the JSON sources carry, so a signing app
-that checks integrity accepts either copy.
+These are the same `sha256` values the JSON sources carry, so a signing app that checks integrity accepts either copy.
 
-Two rules keep the mirror worth trusting:
+Two rules keep the mirror trustworthy:
 
-- **A build is mirrored only once the source has recorded its `sha256`.**
-  Publishing bytes this source cannot vouch for would make the mirror less
-  trustworthy than the CDN it mirrors, so `add_hashes.py` always goes first.
-- **The hash is recomputed from the bytes as they download**, and a mismatch
-  aborts that release instead of filling it. A mismatch means upstream replaced
-  the file at the same URL, which is exactly what the weekly audit's
-  `add_hashes.py --reverify` repairs.
+- A build is mirrored only after the source has recorded its `sha256`, so `add_hashes.py` always runs first. Publishing bytes the source cannot vouch for would make the mirror less trustworthy than the CDN it mirrors.
+- The hash is recomputed from the bytes as they download, and a mismatch aborts that release instead of filling it. A mismatch means upstream replaced the file at the same URL, which is what the weekly audit's `add_hashes.py --reverify` repairs.
 
-`.github/workflows/mirror.yml` runs after each successful updater run, mirroring
-a couple of releases at a time (~170 MB each) so the backlog drains over a few
-runs and every new build is mirrored in the cycle it appears. A build that only
-exists for one platform simply gets one IPA and its release says so. Trimming a
-version out of the JSON does not delete its release — the archive is the point.
+`.github/workflows/mirror.yml` runs after each successful updater run and mirrors a couple of releases at a time (roughly 170 MB each), so the backlog drains over a few runs and every new build is mirrored in the cycle it appears. A build that exists for only one platform gets one IPA, and its release says so. Trimming a version out of the JSON does not delete its release.
 
-To mirror by hand (needs the `gh` CLI, authenticated):
+To mirror manually (requires an authenticated `gh` CLI):
 
 ```bash
 make mirror                      # next couple of builds
@@ -233,192 +204,171 @@ make mirror VERSION=2.1.3b28     # one specific build
 python3 scripts/mirror_release.py --check   # coverage report
 ```
 
----
+## Automation
 
-## Automatic updates
+`.github/workflows/update.yml` runs `stremio-updater.py` every six hours, discovers new Stremio versions, updates the JSON files and commits the result. With Pages enabled, new versions reach signing apps within minutes.
 
-The repo includes a GitHub Actions workflow that runs `stremio-updater.py` every 6 hours, discovers new Stremio versions, updates the JSON files, and auto-commits. With GitHub Pages enabled, new versions appear in your signing app within minutes.
+To enable the workflow: **Actions > Update Stremio source > Enable workflow**. To run it on demand: **Actions > Update Stremio source > Run workflow**.
 
-Every run starts by executing the test suite (`python3 -m unittest discover -s scripts -p 'test_*.py'`, under a second and no network). It covers the parts whose failure would be silent rather than loud: the ZIP/plist parser that reads `minOSVersion` out of a remote IPA, the safety rails on the one script that deletes versions, the version-discovery logic that once missed a release for five straight runs, and the publish gate itself.
+### Publish gate
 
-Nothing is ever pushed without passing `scripts/validate_source.py` first. Five different scripts write to these JSON files, and whatever lands here reaches users within minutes, so the gate checks more than "is this JSON": every `downloadURL` must be https on Stremio's own CDN (a sideloading source must never send people elsewhere for an unsigned IPA), bundle identifiers must be unique within a source, `sourceURL` must name its own file, no app may be published with zero versions, and sizes, dates and `sha256` values must be plausible. If it fails, the job fails and nothing is published. `scripts/test_validate_source.py` corrupts a known-good source one way at a time to prove the gate still fires.
+Each run starts with the test suite (`python3 -m unittest discover -s scripts -p 'test_*.py'`, under a second, no network). It covers the parts whose failure would be silent rather than loud: the ZIP/plist parser that reads `minOSVersion` from a remote IPA, the safety rails on the script that deletes versions, the version-discovery logic that once missed a release for five consecutive runs, and the publish gate itself.
 
-Each run also, in the same job:
+Nothing is pushed before `scripts/validate_source.py` passes. Five scripts write to these JSON files and whatever lands here reaches users within minutes, so the gate checks more than well-formed JSON:
 
-- **Captures release notes** — `scripts/fetch_release_notes.py` copies each build's real changelog from Stremio's own AltStore source (its download URLs are the marketplace format this repo works around, but its release notes are usable). That source only carries the newest couple of builds, so this has to run on the same cadence to catch each changelog before it rolls out of their window — and it never drops one it has already captured. Builds released before this existed keep their generated placeholder, except where an Internet Archive capture of that same upstream URL still holds the changelog — the weekly audit mines those to fill gaps, and never overwrites a note already captured.
-- **Mirrors the newest build into the legacy app-level fields** — the AltStore format has two generations: modern clients read each app's `versions` array, while AltStore Classic and several forks read flat `version` / `versionDescription` / `downloadURL` fields on the app itself. `scripts/sync_legacy_fields.py` keeps both in step, so older clients show the real changelog instead of falling back to something like "Stremio 2.0.6 build 21". The publish gate rejects a mirror that disagrees with the newest version, since old and new clients installing different builds from one entry would be worse than shipping no legacy fields at all.
-- **Proves it is still running** — the install page asks GitHub when this workflow last succeeded and shows it ("Checked 2 hours ago"). The badge's green dot is therefore earned rather than decorative: if the automation stalls, it turns amber and then red instead of reassuring people about a source nobody is maintaining.
-- **Rebuilds the in-app news feed** — signing apps render a source's `news` array inside the app, so `scripts/build_news.py` turns each captured changelog into an item that links back to the app entry. Only the newest release may request a push notification, and only while it is genuinely fresh, so publishing or rebuilding the feed never fires a burst of notifications; identifiers are derived from the release alone so a client notifies at most once. The publish gate enforces both.
-- **Backfills integrity hashes** — `scripts/add_hashes.py` computes the `sha256` of a few IPAs per run (newest first, budget-limited so it never risks the job's time limit), so every version eventually carries a hash that signing apps can verify the download against.
-- **Regenerates the version tables** in this README from the JSON.
+- every `downloadURL` must be HTTPS on Stremio's own CDN, because a sideloading source must never send people elsewhere for an unsigned IPA
+- bundle identifiers must be unique within a source
+- `sourceURL` must name its own file
+- no app may be published with zero versions
+- sizes, dates and `sha256` values must be plausible
+
+A failure fails the job and publishes nothing. `scripts/test_validate_source.py` corrupts a known-good source one field at a time to prove the gate still fires.
+
+### Per-run steps
+
+- **Release notes.** `scripts/fetch_release_notes.py` copies each build's changelog from Stremio's own AltStore source. That source carries only the newest couple of builds, so this runs on the same cadence to catch each changelog before it rolls out of the window, and never drops one it has already captured. Builds released before this existed keep a generated placeholder unless an Internet Archive capture of the same upstream URL still holds the changelog; the weekly audit mines those to fill gaps and never overwrites a captured note.
+- **Legacy field mirroring.** The AltStore format has two generations: modern clients read each app's `versions` array, while AltStore Classic and several forks read flat `version`, `versionDescription` and `downloadURL` fields on the app itself. `scripts/sync_legacy_fields.py` keeps both in step so older clients show the real changelog instead of a fallback string. The publish gate rejects a mirror that disagrees with the newest version, since old and new clients installing different builds from one entry is worse than shipping no legacy fields.
+- **Liveness proof.** The install page asks GitHub when this workflow last succeeded and displays it, for example "Checked 2 hours ago". If the automation stalls, the indicator turns amber and then red instead of reassuring people about an unmaintained source.
+- **News feed.** Signing apps render a source's `news` array in-app, so `scripts/build_news.py` turns each captured changelog into an item linking back to the app entry. Only the newest release may request a push notification, and only while it is genuinely fresh, so publishing or rebuilding the feed never fires a burst of notifications. Identifiers are derived from the release alone, so a client notifies at most once. The publish gate enforces both rules.
+- **Integrity hashes.** `scripts/add_hashes.py` computes the `sha256` of a few IPAs per run, newest first and budget-limited so it never risks the job's time limit, until every version carries a hash that signing apps can verify against.
+- **README tables.** Regenerated from the JSON.
 
 ### Weekly audit
 
-The updater only ever looks for *new* builds, so a second workflow (`.github/workflows/audit.yml`) runs weekly to catch what that misses:
+The updater only looks for new builds, so `.github/workflows/audit.yml` runs weekly to catch the rest:
 
-- **Dead downloads** — `scripts/prune_dead.py` HEAD-checks every listed IPA. When Stremio pulls an old build, the entry is removed so nobody is left tapping a link that 404s. It is deliberately cautious: only 404/410 counts (never a timeout or 5xx), each one is re-checked, and it prunes nothing at all if the newest version is missing or if many die at once — those look like a CDN change, not individual pulls. Dropping an app that has no working versions left is left to a human.
-- **Retention** — `scripts/trim_versions.py` stops the version list growing without bound. It keeps the newest dozen builds, and additionally never drops a build that is the last option for a given `minOSVersion` or the last of a release line — so a device stuck on an older OS cannot be stranded by housekeeping. On today's list nothing is trimmed; the policy matters as the list grows.
-- **Screenshots** — `scripts/fetch_screenshots.py` copies the real App Store screenshots from Stremio's own source, so entries show a gallery instead of a bare name and icon. Upstream only publishes iPhone and iPad shots, so the tvOS source is deliberately left without any rather than showing phone screenshots for a TV app.
-- **Metadata drift** — `scripts/verify_bundle_ids.py` reads each IPA's real `Info.plist` and compares the bundle identifier, version, build and `MinimumOSVersion` against what the JSON claims. It corrects `minOSVersion` in place (the IPA is the authority, and the field only advertises compatibility); a mismatched bundle identifier, version or build defines the entry's identity, so those are reported for a human instead.
+- **Dead downloads.** `scripts/prune_dead.py` sends a HEAD request to every listed IPA and removes entries whose build has been pulled, so nobody is left tapping a link that 404s. It is deliberately cautious: only 404 and 410 count, never a timeout or 5xx; each result is re-checked; and it prunes nothing if the newest version is missing or if many die at once, since that pattern indicates a CDN change rather than individual pulls. Dropping an app with no working versions left is a human decision.
+- **Retention.** `scripts/trim_versions.py` keeps the version list from growing without bound. It retains the newest dozen builds and never drops a build that is the last option for a given `minOSVersion` or the last of a release line, so housekeeping cannot strand a device on an older OS. Nothing is trimmed on the current list; the policy matters as it grows.
+- **Screenshots.** `scripts/fetch_screenshots.py` copies the App Store screenshots from Stremio's own source so entries show a gallery rather than a bare name and icon. Upstream publishes only iPhone and iPad shots, so the tvOS source is left without any instead of showing phone screenshots for a TV app.
+- **Metadata drift.** `scripts/verify_bundle_ids.py` reads each IPA's real `Info.plist` and compares the bundle identifier, version, build and `MinimumOSVersion` against what the JSON claims. It corrects `minOSVersion` in place, since the IPA is the authority and the field only advertises compatibility. A mismatched bundle identifier, version or build defines the entry's identity, so those are reported for a human instead.
 
-Anything needing a decision opens a single deduplicated GitHub issue.
+Anything requiring a decision opens a single deduplicated GitHub issue.
 
-A separate **CDN health canary** (`scripts/check_cdn.py`) runs on the 6-hour schedule. Because the updater exits successfully whether it finds new versions or finds nothing, a broken CDN (a changed URL scheme, an outage, or a pulled build) would otherwise be invisible. The canary HEAD-checks the newest known IPA for each platform and **opens a GitHub issue** (deduplicated — one at a time) if the source may be serving dead downloads.
+### CDN canary
 
-To enable the workflow: **Actions → Update Stremio source → Enable workflow**.
-
-To trigger manually: **Actions → Update Stremio source → Run workflow**.
-
-Configuration lives in `.github/workflows/update.yml`.
-
----
+`scripts/check_cdn.py` runs on the six-hour schedule. The updater exits successfully whether it finds new versions or none, so a changed URL scheme, an outage or a pulled build would otherwise be invisible. The canary sends a HEAD request to the newest known IPA for each platform and opens a deduplicated GitHub issue if the source may be serving dead downloads.
 
 ## Manual updates
 
 ```bash
-# Clone the repo
 git clone https://github.com/gorlev/stremio-altstore.git
 cd stremio-altstore
 
-# Virtual environment (optional but recommended)
+# Optional virtual environment
 python3 -m venv .venv && source .venv/bin/activate
 
-# Dry run — see what would change without writing files
+# Dry run: report what would change, write nothing
 python3 stremio-updater.py --dry-run --verbose
 
-# Real update — write changes to JSON files
+# Real update
 python3 stremio-updater.py
 
-# Parse Info.plist for unknown IPAs to verify bundle IDs (slower)
+# Parse Info.plist for unknown IPAs to verify bundle identifiers (slower)
 python3 stremio-updater.py --info-plist
 
-# Only iOS (or only tvOS)
+# One platform only
 python3 stremio-updater.py --platform ios
 python3 stremio-updater.py --platform tvos
 
 # Update sourceURL fields
 python3 stremio-updater.py \
-  --source-url-ios  "https://<your-github-username>.github.io/stremio-altstore/stremio-ios.json" \
-  --source-url-tvos "https://<your-github-username>.github.io/stremio-altstore/stremio-tvos.json"
+  --source-url-ios  "https://<username>.github.io/stremio-altstore/stremio-ios.json" \
+  --source-url-tvos "https://<username>.github.io/stremio-altstore/stremio-tvos.json"
 
-# Commit and push
 git add stremio-ios.json stremio-tvos.json
 git commit -m "chore: update Stremio source"
 git push
 ```
 
-Shorter aliases via `make`:
+Shorter aliases:
 
 ```bash
-make help         # List all targets
-make dry-run      # Dry run
-make update       # Real update
-make verify       # Update with Info.plist verification
-make set-urls     # Set sourceURL fields interactively
+make help         # list all targets
+make dry-run      # dry run
+make update       # real update
+make verify       # update with Info.plist verification
+make set-urls     # set sourceURL fields interactively
 ```
 
----
-
-## Architecture
+## Repository layout
 
 ```
 stremio-altstore/
-├── README.md                   ← this file
-├── LICENSE                     ← MIT
-├── CHANGELOG.md                ← version history
-├── CONTRIBUTING.md             ← contribution guide
-├── SECURITY.md                 ← security policy
-├── Makefile                    ← shortcut commands
-├── .gitignore                  ← Python / macOS / IDE
-├── stremio-ios.json            ← main source (iOS / iPadOS)
-├── stremio-tvos.json           ← main source (tvOS)
-├── stremio-updater.py          ← CDN scanner + JSON updater
-├── ipa_plist.py                ← shared HTTP-Range IPA Info.plist parser
-├── install.html                ← one-tap install landing page (GitHub Pages)
+├── stremio-ios.json            iOS / iPadOS source
+├── stremio-tvos.json           tvOS source
+├── stremio-updater.py          CDN scanner and JSON updater
+├── ipa_plist.py                shared HTTP-Range IPA Info.plist parser
+├── install.html                one-tap install landing page (GitHub Pages)
+├── Makefile                    shortcut commands
+├── README.md, CHANGELOG.md, CONTRIBUTING.md, SECURITY.md, LICENSE
 ├── .github/
-│   ├── dependabot.yml          ← keeps the workflow actions current
+│   ├── dependabot.yml          keeps the workflow actions current
 │   ├── workflows/
-│   │   ├── update.yml          ← auto-update every 6 hours + CDN canary
-│   │   ├── audit.yml           ← weekly dead-IPA prune + metadata verify
-│   │   └── mirror.yml          ← mirrors each build into a GitHub Release
+│   │   ├── update.yml          auto-update every 6 hours, plus CDN canary
+│   │   ├── audit.yml           weekly dead-IPA prune and metadata verify
+│   │   └── mirror.yml          mirrors each build into a GitHub Release
 │   └── ISSUE_TEMPLATE/
-│       ├── bug_report.yml
-│       ├── feature_request.yml
-│       └── source_broken.yml
 └── scripts/
-    ├── verify_bundle_ids.py    ← standalone IPA Info.plist verifier
-    ├── render_readme.py        ← regenerates the version tables above
-    ├── add_hashes.py           ← backfills sha256 integrity hashes (budgeted)
-    ├── mirror_release.py       ← mirrors IPAs into GitHub Releases (budgeted)
-    ├── check_cdn.py            ← CDN health canary (opens an issue if broken)
-    ├── prune_dead.py           ← removes versions whose IPA is gone (404)
-    ├── trim_versions.py        ← retention policy for the version list
-    ├── fetch_release_notes.py  ← captures each release's real changelog
-    ├── fetch_screenshots.py    ← captures App Store screenshots (weekly)
-    ├── build_news.py           ← turns changelogs into the in-app news feed
-    ├── sync_legacy_fields.py   ← mirrors newest build for older AltStore clients
-    ├── validate_source.py      ← publish gate: is this still a valid, safe source?
-    ├── test_ipa_plist.py       ← ZIP/plist parser, against real archives
-    ├── test_prune_dead.py      ← the safety rails on the script that deletes
-    ├── test_updater_logic.py   ← version discovery and merge invariants
-    ├── test_mirror_release.py  ← what gets mirrored, and what must not
-    ├── test_derived_data.py    ← README render, legacy mirror, notes, hashes
-    └── test_validate_source.py ← proves the publish gate actually fires
+    ├── verify_bundle_ids.py    standalone IPA Info.plist verifier
+    ├── render_readme.py        regenerates the version tables above
+    ├── add_hashes.py           backfills sha256 integrity hashes (budgeted)
+    ├── mirror_release.py       mirrors IPAs into GitHub Releases (budgeted)
+    ├── check_cdn.py            CDN health canary
+    ├── prune_dead.py           removes versions whose IPA returns 404
+    ├── trim_versions.py        retention policy for the version list
+    ├── fetch_release_notes.py  captures each release's changelog
+    ├── fetch_screenshots.py    captures App Store screenshots (weekly)
+    ├── build_news.py           turns changelogs into the in-app news feed
+    ├── sync_legacy_fields.py   mirrors newest build for older AltStore clients
+    ├── validate_source.py      publish gate
+    ├── test_ipa_plist.py       ZIP/plist parser, against real archives
+    ├── test_prune_dead.py      safety rails on the deleting script
+    ├── test_updater_logic.py   version discovery and merge invariants
+    ├── test_mirror_release.py  what gets mirrored, and what must not
+    ├── test_derived_data.py    README render, legacy mirror, notes, hashes
+    └── test_validate_source.py proves the publish gate fires
 ```
 
-### Why two JSON files?
+## Design notes
 
-Stremio uses the **same bundle identifier** on both iOS and tvOS: `com.stremio.pal`. Most signing apps do not allow two apps with the same `bundleIdentifier` inside one source (signing/conflict reasons). That's why:
+### Why two JSON files
 
-- `stremio-ios.json`  → iPhone / iPad (`com.stremio.pal` and `com.stremio.ios`)
-- `stremio-tvos.json` → Apple TV (`com.stremio.pal` and `com.stremio.ios`, in separate sources — no conflict)
+Stremio ships the same bundle identifier, `com.stremio.pal`, on iOS and tvOS. Most signing apps reject two apps with the same `bundleIdentifier` inside one source, so the platforms are split:
 
-You can add both to your signing app; the appropriate one shows up per device type.
+- `stremio-ios.json` covers iPhone and iPad (`com.stremio.pal`, `com.stremio.ios`)
+- `stremio-tvos.json` covers Apple TV (`com.stremio.pal`, `com.stremio.ios`)
+
+Both can be added to the same signing app; the relevant one appears per device type.
 
 ### How the updater works
 
-1. **`scan_cdn`**: Probes `dl.strem.io/apple/{semver}b{build}/{ios|tvos}/...` URLs in parallel with a `ThreadPoolExecutor` (16 workers). Scans the last known build + buffer range.
-2. **`get_main_app_info_plist`**: Fetches only the relevant chunks of the IPA via HTTP `Range` requests (ZIP EOCD + Central Directory + compressed Info.plist), parses binary or XML plist with `plistlib`. Typical download: < 5 KB per IPA. The function filters out framework and appex Info.plists, keeping only the main app entry.
-3. **`process_platform`**: Adds discovered versions to the JSON or refreshes metadata of existing ones. Keeps versions sorted by (version, build) descending.
-
----
+1. `scan_cdn` probes `dl.strem.io/apple/{semver}b{build}/{ios|tvos}/...` URLs in parallel with a 16-worker `ThreadPoolExecutor`, covering the last known build plus a buffer range.
+2. `get_main_app_info_plist` fetches only the relevant chunks of the IPA with HTTP Range requests (ZIP EOCD, central directory, compressed `Info.plist`) and parses the binary or XML plist with `plistlib`. Typical transfer is under 5 KB per IPA. Framework and appex `Info.plist` entries are filtered out, keeping the main app.
+3. `process_platform` adds discovered versions to the JSON or refreshes the metadata of existing ones, keeping versions sorted by version and build, descending.
 
 ## Limitations
 
-- **Unofficial** — Stremio does not support this source. It can change IPA URLs or shut down the CDN at any time.
-- **Signature expiry** — Apps signed with a free Apple ID expire after **7 days**, with a paid developer account after **1 year**. You'll need to re-sign through your signing app.
-- **Missing features** — Per Stremio's blog, some features (Apple Login, Handoff) don't work in sideloaded builds: *"these features cannot be available within sideloadable apps"*.
-- **CDN dependency** — If Stremio changes its `dl.strem.io` infrastructure, this repo breaks. Run `updater.py --dry-run` periodically to verify.
-
----
+- **Unofficial.** Stremio does not support this source and can change IPA URLs or shut down the CDN at any time.
+- **Signature expiry.** Builds signed with a free Apple ID expire after 7 days; a paid developer account lasts 1 year. Re-signing happens through your signing app.
+- **Missing features.** Per Stremio's blog, some features such as Apple Login and Handoff do not work in sideloaded builds: "these features cannot be available within sideloadable apps".
+- **CDN dependency.** If Stremio changes its `dl.strem.io` infrastructure, this repository breaks. Run `stremio-updater.py --dry-run` periodically to check.
 
 ## Contributing
 
-Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md). Particularly useful:
 
-Especially helpful:
+- reporting versions the updater missed, as an issue or a pull request
+- bug fixes, especially parse errors and edge cases
+- documentation: translations, clarifications, examples
+- compatibility testing with other signing apps, including parse errors to fix
 
-- 🆕 **Reporting new versions** — open an Issue or PR if the updater missed one
-- 🐛 **Bug fixes** — particularly parse errors and edge cases
-- 📚 **Documentation** — README translations, clarifications, examples
-- 🧪 **Testing** — compatibility with different signing apps
-- 🆕 **Adding new signing app support** — if a signing app has trouble parsing our JSON, file an Issue with the parsing error message
-
-For security issues please see [SECURITY.md](SECURITY.md).
-
----
+For security issues, see [SECURITY.md](SECURITY.md).
 
 ## License and attribution
 
-This repository is licensed under the [MIT License](LICENSE).
+Licensed under the [MIT License](LICENSE).
 
-- **Stremio** is a trademark of SmartCode OOD. This repo is not affiliated with, endorsed by, or sponsored by Stremio or SmartCode OOD.
-- **AltStore** and the source format are defined by [AltStore](https://altstore.io).
-- **Feather** is an open-source project by [@claration](https://github.com/claration/Feather).
+- Stremio is a trademark of SmartCode OOD. This repository is not affiliated with, endorsed by or sponsored by Stremio or SmartCode OOD.
+- AltStore and the source format are defined by [AltStore](https://altstore.io).
+- Feather is an open-source project by [@claration](https://github.com/claration/Feather).
 - Original unofficial source inspiration: [@blksmr/altstore-stremio](https://github.com/blksmr/altstore-stremio).
-
----
-
-<p align="center">
-  <sub>This source is maintained by the community, with love 🍿</sub>
-</p>
