@@ -440,13 +440,23 @@
       --text: "IBM Plex Sans Arabic", "Noto Sans Arabic", "Geeza Pro",
               "Segoe UI", system-ui, sans-serif;
     }
-    html[lang="ar"] .hero h1,
-    html[lang="ar"] .releases > h2,
-    html[lang="ar"] .panel-head h2,
-    html[lang="ar"] .strip-top h2,
-    html[lang="ar"] .vnum,
-    html[lang="ar"] .ident .name { letter-spacing: normal; }
-    html[lang="ar"] .hero { max-width: 52ch; }
+    /* Persian leads with the same face, but falls back through the fonts a
+       Persian reader's machine is likely to have rather than the Arabic
+       ones — Tahoma is what Windows has been shipping Persian in for
+       twenty years. */
+    html[lang="fa"] {
+      --text: "IBM Plex Sans Arabic", "Vazirmatn", Tahoma, "Geeza Pro",
+              system-ui, sans-serif;
+    }
+    /* Tight tracking breaks the joins in any Arabic-script language, so
+       this hangs off the direction now that two languages want it. */
+    [dir="rtl"] .hero h1,
+    [dir="rtl"] .releases > h2,
+    [dir="rtl"] .panel-head h2,
+    [dir="rtl"] .strip-top h2,
+    [dir="rtl"] .vnum,
+    [dir="rtl"] .ident .name { letter-spacing: normal; }
+    [dir="rtl"] .hero { max-width: 52ch; }
 
     /* Plus Jakarta Sans ships a subset called cyrillic-ext, which is easy to
        misread as Cyrillic support: it starts at U+0460 and so carries none of
@@ -672,6 +682,15 @@
       { code: "it", native: "Italiano", locale: "it-IT" },
       { code: "pl", native: "Polski",   locale: "pl-PL" },
       { code: "ru", native: "Русский",  locale: "ru-RU" },
+      // -ca-gregory as well as Latin digits: fa-IR would otherwise date
+      // these builds in the Jalali calendar. Iran reads dates in both, but
+      // split by context — Jalali for civil life, Gregorian for anything
+      // facing outward, and a release log is the second kind. The reader's
+      // purpose here is comparing a row against Stremio's site, GitHub and
+      // their signing app, all of which show Gregorian; a Jalali date is
+      // the one field they could not check by eye, and misreading it fails
+      // silently in a way a wrong build number would not.
+      { code: "fa", native: "فارسی",    locale: "fa-IR-u-nu-latn-ca-gregory", rtl: true },
       { code: "ar", native: "العربية",  locale: "ar-u-nu-latn", rtl: true }
     ];
     var STRINGS = {
@@ -1313,6 +1332,76 @@
                 "footer.resign": "С бесплатным Apple ID подпись живёт семь дней — дальше приложение не откроется, пока его не переподпишут.",
                 "footer.link": "Посмотреть код или сообщить о проблеме на GitHub"
           },
+          "fa": {
+                "meta.title": "Stremio — سورس غیررسمی AltStore",
+                "meta.description": "نصب Stremio روی iPhone، iPad و Apple TV بدون App Store. سورسی برای AltStore و SideStore که هر شش ساعت سرورهای Stremio را چک می‌کند و هر بیلد تازه را اضافه می‌کند.",
+                "ident.kind": "سورس غیررسمی",
+                "nav.github": "کد پروژه در GitHub",
+                "lang.label": "زبان",
+                "hero.h1": "Stremio روی iPhone، iPad و Apple TV",
+                "hero.lead": "Stremio این نسخه‌ها را خودش می‌سازد و روی سرورهای خودش می‌گذارد، اما هیچ‌وقت در App Store منتشرشان نمی‌کند. این سورس هر شش ساعت همان سرورها را چک می‌کند و هر بیلد تازه را اضافه می‌کند، تا نسخهٔ جدید همان روز انتشار در AltStore یا SideStore ظاهر شود.",
+                "fresh.title": "سرورها هر شش ساعت یک بار چک می‌شوند",
+                "fresh.static": "بررسی هر شش ساعت",
+                "fresh.checked": "{time} چک شد",
+                "fresh.last": "آخرین بررسی: {time}",
+                "fresh.stopped": "آخرین بررسی: {time} — ممکن است آپدیت‌ها متوقف شده باشند",
+                "fresh.succeeded": "آخرین بررسی موفق: {date}",
+                "time.justNow": "لحظه‌ای پیش",
+                "time.minutes": {
+                      "one": "یک دقیقه پیش",
+                      "other": "{n} دقیقه پیش"
+                },
+                "time.hours": {
+                      "one": "یک ساعت پیش",
+                      "other": "{n} ساعت پیش"
+                },
+                "time.days": {
+                      "one": "یک روز پیش",
+                      "other": "{n} روز پیش"
+                },
+                "ios.h2": "iPhone و iPad",
+                "spec.build": "بیلد",
+                "spec.released": "تاریخ انتشار",
+                "spec.size": "حجم",
+                "source.label": "آدرس سورس",
+                "action.copy": "کپی",
+                "action.copied": "کپی شد",
+                "action.addAlt": "افزودن به AltStore",
+                "action.addSide": "افزودن به SideStore",
+                "aside.ios.lead": "از Feather، ESign یا Scarlet استفاده می‌کنید؟",
+                "aside.ios.rest": "آدرس بالا را در صفحهٔ Sources همان برنامه وارد کنید.",
+                "notes.summary": "تغییرات این بیلد",
+                "tvos.h2": "Apple TV",
+                "tvos.buildWord": "بیلد",
+                "aside.tvos.lead": "روی خود تلویزیون راه‌اندازی می‌کنید؟",
+                "aside.tvos.rest": "در tvOS کلیپ‌بورد و پیست وجود ندارد، پس آدرس را باید دستی تایپ کنید.",
+                "releases.h2": "همهٔ نسخه‌ها",
+                "releases.lead": "این فهرست مستقیم از همان فایل‌های سورس خوانده می‌شود، یعنی دقیقاً همان چیزی را نشان می‌دهد که AltStore هم می‌بیند، و دانلود هم از CDN خود Stremio انجام می‌شود. هر ردیفی که تغییرات دارد با یک کلیک باز می‌شود، و روی صفحهٔ عریض‌تر هش SHA-256 فایل IPA هر ردیف هم می‌آید — روی هش بزنید تا کامل کپی شود.",
+                "releases.loading": "در حال خواندن فایل‌های سورس…",
+                "releases.failed": "فایل‌های سورس لود نشدند. می‌توانید stremio-ios.json یا stremio-tvos.json را در GitHub باز کنید و مستقیم بخوانید.",
+                "plat.ios": "iOS / iPadOS",
+                "plat.tvos": "Apple TV",
+                "th.version": "نسخه",
+                "th.app": "برنامه",
+                "th.released": "تاریخ",
+                "th.size": "حجم",
+                "th.fingerprint": "هش",
+                "tag.latest": "آخرین نسخه",
+                "row.build": "بیلد {n}",
+                "row.getIpa": "دانلود IPA",
+                "sha.title": "کپی کامل SHA-256",
+                "sha.copied": "کپی شد",
+                "count.releases": {
+                      "one": "1 نسخه",
+                      "other": "{n} نسخه"
+                },
+                "count.unavailable": "فایل سورس در دسترس نیست",
+                "value.none": "—",
+                "footer.cdn.before": "این یک پروژهٔ کاربری است و وابستگی‌ای به Stremio ندارد. خود فایل‌های IPA از CDN عمومی Stremio روی ",
+                "footer.cdn.after": " می‌آیند؛ این ریپو فقط متادیتایی را منتشر می‌کند که به آن‌ها اشاره دارد.",
+                "footer.resign": "امضا با Apple ID رایگان فقط هفت روز اعتبار دارد؛ بعد از آن برنامه باز نمی‌شود و باید دوباره امضایش کنید.",
+                "footer.link": "کد پروژه را ببینید یا مشکلی را در GitHub گزارش کنید"
+          },
           "ar": {
                 "meta.title": "Stremio — مصدر غير رسمي لـ AltStore",
                 "meta.description": "ثبّت Stremio على iPhone وiPad وApple TV من خارج App Store. مصدر مجتمعي لـ AltStore وSideStore، نراجع خوادم Stremio كل ست ساعات ونضيف كل إصدار جديد.",
@@ -1478,6 +1567,11 @@
     // the file is fetched only for the readers who need it.
     var FONTS = {
       ar: "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap",
+      // Persian reuses the Arabic face rather than adding one: Plex draws
+      // the Persian letterforms properly — the kaf with its upstroke, the
+      // final yeh without dots — which an Arabic-only font would not, and
+      // sharing it keeps the two right-to-left languages looking alike.
+      fa: "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap",
       ru: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
     };
     var fontAsked = {};
