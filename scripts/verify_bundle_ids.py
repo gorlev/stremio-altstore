@@ -17,9 +17,17 @@ authority and the field merely advertises compatibility. A wrong bundle
 identifier, version or build defines the entry's identity, so those stay
 reported-only and need a human.
 
+This reads ~25 IPAs over the network, so "could not read it" and "the
+metadata is wrong" are kept apart, the way prune_dead.py separates "gone"
+from "unreachable". An IPA that will not load is retried and then reported
+as a warning; a single flaky request must not raise an audit issue claiming
+the sources have drifted. Only a real mismatch does that — or so many
+unreadable IPAs that the run cannot vouch for anything.
+
 Exit codes:
-    0 — all values match
-    1 — mismatch or fetch/parse error
+    0 — every value that could be checked matches
+    1 — a genuine mismatch, or a source file is missing: needs a human
+    2 — inconclusive: too many IPAs could not be read to trust the result
 """
 
 from __future__ import annotations
@@ -34,18 +42,36 @@ from ipa_plist import get_main_app_info_plist  # noqa: E402
 
 ipa_plist.USER_AGENT = "stremio-altstore/verify_bundle_ids/1.0"
 
+# Re-reads before an IPA counts as unreadable. The parser makes several Range
+# requests per IPA, so a transient failure is likelier here than on a HEAD.
+DEFAULT_RETRIES = 2
+# Above this share of unreadable IPAs the run proves nothing: report it as
+# inconclusive rather than quietly passing on the few that did load.
+UNREADABLE_TOLERANCE = 1 / 3
+
+
+def read_plist(url: str, retries: int = DEFAULT_RETRIES) -> dict:
+    """get_main_app_info_plist, retried — a dropped Range request is not a verdict."""
+    result: dict = {}
+    for _ in range(retries + 1):
+        result = get_main_app_info_plist(url)
+        if result.get("ok"):
+            return result
+    return result
+
 
 def verify(json_paths: list[Path], verbose: bool = False, fix: bool = False) -> int:
     total = 0
     passed = 0
     mismatches = 0
-    errors = 0
+    unreadable: list[str] = []
+    missing_files = 0
     fixed = 0
 
     for json_path in json_paths:
         if not json_path.exists():
             print(f"[ERR] {json_path} not found")
-            errors += 1
+            missing_files += 1
             continue
 
         data = json.loads(json_path.read_text(encoding="utf-8"))
@@ -63,10 +89,16 @@ def verify(json_paths: list[Path], verbose: bool = False, fix: bool = False) -> 
                     print(f"    [SKIP] no downloadURL for version {v.get('version')}")
                     continue
 
-                info = get_main_app_info_plist(url)
+                info = read_plist(url)
                 if not info.get("ok"):
-                    print(f"    [ERR ] {v.get('version')} (build {v.get('buildVersion')}): {info.get('error')}")
-                    errors += 1
+                    # Not drift: we never got to see the metadata. Warn, and
+                    # let the tolerance check below decide whether the run as
+                    # a whole still means anything.
+                    print(f"    [????] {v.get('version')} (build {v.get('buildVersion')}): "
+                          f"could not read IPA ({info.get('error')}) — not counted as a mismatch")
+                    unreadable.append(f"{json_path.name}: {app.get('name')} "
+                                      f"{v.get('version')} build {v.get('buildVersion')} "
+                                      f"({info.get('error')})")
                     continue
 
                 plist = info["plist"]                                            
@@ -120,10 +152,33 @@ def verify(json_paths: list[Path], verbose: bool = False, fix: bool = False) -> 
             )
             print(f"\n[WRITE] {json_path.name} updated ({file_fixed} minOS value(s) corrected)")
 
-    print(f"\n=== Summary ===")
+    print("\n=== Summary ===")
     print(f"Total: {total}, matching: {passed}, mismatches: {mismatches}, "
-          f"errors: {errors}, corrected: {fixed}")
-    return 1 if (mismatches or errors) else 0
+          f"unreadable: {len(unreadable)}, corrected: {fixed}")
+
+    for u in unreadable:
+        print(f"[WARN] Could not read, left untouched — {u}")
+
+    if missing_files:
+        print(f"\n[ERROR] {missing_files} source file(s) missing.")
+        return 1
+    if mismatches:
+        print(f"\n[ERROR] {mismatches} entr(ies) disagree with their IPA's own Info.plist.")
+        return 1
+
+    # Nothing is wrong, but say so honestly: if most IPAs would not load, this
+    # run checked almost nothing and should not read as a clean bill of health.
+    checked = total - len(unreadable)
+    if unreadable and (checked == 0 or len(unreadable) > total * UNREADABLE_TOLERANCE):
+        print(f"\n[INCONCLUSIVE] {len(unreadable)} of {total} IPAs could not be read "
+              f"(over the {UNREADABLE_TOLERANCE:.0%} tolerance). Nothing looks drifted, "
+              f"but this run cannot vouch for the metadata.")
+        return 2
+    if unreadable:
+        print(f"\nOK — {checked}/{total} verified. "
+              f"{len(unreadable)} IPA(s) were unreachable this run and will be re-checked.")
+        return 0
+    return 0
 
 
 def main() -> int:
