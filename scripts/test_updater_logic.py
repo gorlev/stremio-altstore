@@ -224,6 +224,38 @@ class ScanReach(unittest.TestCase):
         found = updater.scan_cdn({"2.0.6b21"}, platforms=["tvos"])
         self.assertEqual(set(found), {"tvos"})
 
+    def test_a_dropped_connection_does_not_hide_a_real_build(self):
+        # http_request turns timeouts and connection errors into status None.
+        # Treating that as "does not exist" loses a release for a whole cycle,
+        # so a non-answer is retried once.
+        target = f"{updater.CDN_BASE}/2.0.7b22/ios/stremio_iOS.ipa"
+        attempts: dict[str, int] = {}
+
+        def flaky(url, *, method="GET", headers=None, timeout=15):
+            if url == updater.UPSTREAM_SOURCE:
+                return ipa_plist.HttpResp(200, {}, json.dumps({"apps": []}).encode())
+            attempts[url] = attempts.get(url, 0) + 1
+            if url == target and attempts[url] == 1:
+                return ipa_plist.HttpResp(None, {}, None)   # dropped
+            if url == target:
+                return ipa_plist.HttpResp(
+                    200, {"Content-Length": "72000000",
+                          "Last-Modified": "Tue, 22 Jul 2026 10:00:00 GMT"}, None)
+            return ipa_plist.HttpResp(404, {}, None)
+
+        updater.http_request = flaky
+        found = updater.scan_cdn({"2.0.6b21"}, platforms=["ios"])
+        self.assertIn("2.0.7b22", found["ios"])
+        self.assertEqual(attempts[target], 2, "the non-answer should be retried once")
+
+    def test_a_404_is_not_retried(self):
+        # Nearly every candidate is a 404; retrying them would double the
+        # scan against someone else's CDN to learn nothing.
+        self.serve_upstream([{"version": "2.0.6", "buildVersion": "21"}])
+        updater.scan_cdn({"2.0.6b21"}, platforms=["ios"])
+        self.assertEqual(len(self.asked), len(set(self.asked)),
+                         "no URL should be requested twice")
+
     def test_unreachable_upstream_does_not_stop_the_scan(self):
         # Discovery must survive on its own if Stremio's source is down.
         self.serve_upstream([], status=503)

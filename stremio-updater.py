@@ -35,12 +35,11 @@ import argparse
 import json
 import re
 import sys
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
 from typing import Iterable, Optional
-from xml.etree import ElementTree as ET
 
 sys.path.insert(0, str(Path(__file__).parent))
 import ipa_plist  # noqa: E402
@@ -206,6 +205,14 @@ def scan_cdn(known_tags: Iterable[str], *, platforms: Optional[Iterable[str]] = 
     def check(cand: tuple[str, str, str]) -> Optional[tuple[str, str, dict]]:
         plat, tag, url = cand
         resp = http_request(url, method="HEAD", timeout=8)
+        # A status of None is not a verdict: http_request swallows timeouts and
+        # connection errors into it, and a swallowed blip on a real release
+        # looks exactly like "this build does not exist" — losing it until the
+        # next run, or forever once the build window moves past it. Retry only
+        # that case: 404 is the honest answer for nearly every candidate here,
+        # so retrying it would double the scan to learn nothing.
+        if resp.status is None:
+            resp = http_request(url, method="HEAD", timeout=8)
         if resp.status != 200:
             return None
         size = int(resp.headers.get("Content-Length") or 0)
@@ -253,11 +260,14 @@ def merge_version(app: dict, version: str, build: int, meta: dict, info: Optiona
         if v.get("version") == version and v.get("buildVersion") == str(build):
             changed = False
             if v.get("size") != meta["size"]:
-                v["size"] = meta["size"]; changed = True
+                v["size"] = meta["size"]
+                changed = True
             if meta.get("date") and v.get("date") != meta["date"]:
-                v["date"] = meta["date"]; changed = True
+                v["date"] = meta["date"]
+                changed = True
             if info and info.get("MinimumOSVersion") and v.get("minOSVersion") != info["MinimumOSVersion"]:
-                v["minOSVersion"] = info["MinimumOSVersion"]; changed = True
+                v["minOSVersion"] = info["MinimumOSVersion"]
+                changed = True
             return changed
 
     min_os = (info or {}).get("MinimumOSVersion") or "13.0"
@@ -416,7 +426,7 @@ def main() -> int:
         else:
             print(f"[OK] {json_path.name} already up to date")
 
-    print(f"\n=== Summary ===")
+    print("\n=== Summary ===")
     print(f"New: {total_new}, Updated: {total_updated}")
     if args.dry_run and (total_new or total_updated):
         print("(DRY-RUN mode: files not written)")
