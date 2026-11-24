@@ -28,7 +28,7 @@ GOOD = {
     "name": "Stremio iOS (Unofficial AltStore Source)",
     "identifier": "com.gorlev.stremio-ios",
     "sourceURL": "https://gorlev.github.io/stremio-altstore/stremio-ios.json",
-    "iconURL": "https://www.stremio.com/website/stremio-logo-small.png",
+    "iconURL": "https://gorlev.github.io/stremio-altstore/stremio-icon-512.png",
     "apps": [
         {
             "name": "Stremio",

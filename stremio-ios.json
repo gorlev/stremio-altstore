@@ -3,8 +3,8 @@
   "identifier": "community.stremio.ios",
   "subtitle": "Freedom to stream — unofficial AltStore-compatible source for iOS / iPadOS.",
   "description": "An unofficial AltStore source for Stremio iOS / iPadOS, compatible with any signing app that consumes the standard AltStore source format (Feather, AltStore Classic, AltStore PAL, ESign, Scarlet, Sideloadly, and others). Stremio's official source at dl.strem.io/apple/altstore/source.json cannot be parsed by most signing apps because it uses Apple's encrypted App Store Connect marketplace manifest format; this source points to plain IPA artifacts publicly available on the dl.strem.io CDN. Includes two packages: Stremio PAL (full-featured, com.stremio.pal) and Stremio Lite (legacy, com.stremio.ios). For Apple TV (tvOS) add the separate source: stremio-tvos.json. This is an unofficial community port, not supported by Stremio.",
-  "iconURL": "https://www.stremio.com/website/stremio-logo-small.png",
-  "headerURL": "https://www.stremio.com/website/stremio-logo-small.png",
+  "iconURL": "https://gorlev.github.io/stremio-altstore/stremio-icon-512.png",
+  "headerURL": "https://gorlev.github.io/stremio-altstore/stremio-icon-512.png",
   "website": "https://www.stremio.com",
   "tintColor": "#7055D9",
   "sourceURL": "https://gorlev.github.io/stremio-altstore/stremio-ios.json",
@@ -19,7 +19,7 @@
       "developerName": "Stremio",
       "subtitle": "Freedom to stream.",
       "localizedDescription": "Stremio — a modern media center for movies, series, live TV and web channels. Expand your content library with the add-on system. Requires iPhone and iPad, iOS 13.0+. NOTE: Some features such as Apple Login and Handoff do not work in the sideloaded version.",
-      "iconURL": "https://www.stremio.com/website/stremio-logo-small.png",
+      "iconURL": "https://gorlev.github.io/stremio-altstore/stremio-icon-512.png",
       "tintColor": "#7055D9",
       "category": "entertainment",
       "screenshots": {
@@ -205,7 +205,7 @@
       "date": "2026-11-23",
       "notify": true,
       "appID": "com.stremio.pal",
-      "imageURL": "https://www.stremio.com/website/stremio-logo-small.png"
+      "imageURL": "https://gorlev.github.io/stremio-altstore/stremio-icon-512.png"
     },
     {
       "title": "Stremio 2.1.2",
@@ -215,7 +215,7 @@
       "date": "2026-11-17",
       "notify": false,
       "appID": "com.stremio.pal",
-      "imageURL": "https://www.stremio.com/website/stremio-logo-small.png"
+      "imageURL": "https://gorlev.github.io/stremio-altstore/stremio-icon-512.png"
     },
     {
       "title": "Stremio 2.1.1",
@@ -225,7 +225,7 @@
       "date": "2026-10-31",
       "notify": false,
       "appID": "com.stremio.pal",
-      "imageURL": "https://www.stremio.com/website/stremio-logo-small.png"
+      "imageURL": "https://gorlev.github.io/stremio-altstore/stremio-icon-512.png"
     },
     {
       "title": "Stremio 2.1.0",
@@ -235,7 +235,7 @@
       "date": "2026-10-21",
       "notify": false,
       "appID": "com.stremio.pal",
-      "imageURL": "https://www.stremio.com/website/stremio-logo-small.png"
+      "imageURL": "https://gorlev.github.io/stremio-altstore/stremio-icon-512.png"
     },
     {
       "title": "Stremio 2.0.8",
@@ -245,7 +245,7 @@
       "date": "2026-09-10",
       "notify": false,
       "appID": "com.stremio.pal",
-      "imageURL": "https://www.stremio.com/website/stremio-logo-small.png"
+      "imageURL": "https://gorlev.github.io/stremio-altstore/stremio-icon-512.png"
     },
     {
       "title": "Stremio 2.0.7",
@@ -255,7 +255,7 @@
       "date": "2026-08-24",
       "notify": false,
       "appID": "com.stremio.pal",
-      "imageURL": "https://www.stremio.com/website/stremio-logo-small.png"
+      "imageURL": "https://gorlev.github.io/stremio-altstore/stremio-icon-512.png"
     },
     {
       "title": "Stremio 2.0.6",
@@ -265,7 +265,7 @@
       "date": "2026-07-22",
       "notify": false,
       "appID": "com.stremio.pal",
-      "imageURL": "https://www.stremio.com/website/stremio-logo-small.png"
+      "imageURL": "https://gorlev.github.io/stremio-altstore/stremio-icon-512.png"
     },
     {
       "title": "Stremio 2.0.3",
@@ -275,7 +275,7 @@
       "date": "2026-07-09",
       "notify": false,
       "appID": "com.stremio.pal",
-      "imageURL": "https://www.stremio.com/website/stremio-logo-small.png"
+      "imageURL": "https://gorlev.github.io/stremio-altstore/stremio-icon-512.png"
     },
     {
       "title": "Stremio 2.0.2",
@@ -285,7 +285,7 @@
       "date": "2026-06-19",
       "notify": false,
       "appID": "com.stremio.pal",
-      "imageURL": "https://www.stremio.com/website/stremio-logo-small.png"
+      "imageURL": "https://gorlev.github.io/stremio-altstore/stremio-icon-512.png"
     }
   ]
 }

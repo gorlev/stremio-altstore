@@ -81,6 +81,8 @@ def main() -> int:
 
     critical: list[str] = []
     warnings: list[str] = []
+    # Both sources point at the same icon; fetch it once.
+    seen_icons: dict[str, int] = {}
 
     print("=== CDN health check ===")
     for fname in SOURCES:
@@ -109,6 +111,22 @@ def main() -> int:
 
         if not reach_ok:
             critical.append(f"{fname}: newest IPA {label} unreachable (HTTP {status}) — {url}")
+
+        # The source's icon is what every signing app shows next to the entry.
+        # It is cosmetic, so a dead icon is a warning rather than a failure —
+        # but it has to be visible: the previous icon URL 404'd silently for
+        # an unknown length of time because nothing here ever looked at it.
+        icon = data.get("iconURL")
+        if isinstance(icon, str) and icon:
+            if icon in seen_icons:
+                icon_status = seen_icons[icon]
+            else:
+                icon_status = http_request(icon, method="HEAD", timeout=15).status
+                seen_icons[icon] = icon_status
+            print(f"  {fname}: iconURL → HTTP {icon_status}")
+            if icon_status != 200:
+                warnings.append(f"{fname}: iconURL unreachable (HTTP {icon_status}) — "
+                                f"signing apps will show a broken icon — {icon}")
         if age is not None and age > max_age:
             warnings.append(f"{fname}: newest version {label} is {age} days old (> {max_age}d threshold) — "
                             f"scanner may be missing releases, or Stremio has not shipped")

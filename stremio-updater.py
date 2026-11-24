@@ -54,6 +54,13 @@ UPSTREAM_SOURCE = "https://dl.strem.io/apple/altstore/source.json"
 # that normally advances by one per release, so this is generous; the
 # upstream hint covers anything that jumps further.
 BUILD_LOOKAHEAD = 8
+# Stremio's mark, served from this repo's own Pages site rather than from
+# stremio.com. The previous value pointed at www.stremio.com/website/, which
+# went 404 at some point and left every signing app showing a broken icon —
+# a failure nothing here could see, because the canary only watched the IPAs.
+# The file is the official brand asset (github.com/Stremio/stremio-brand),
+# and self-hosting means an upstream reshuffle cannot break it again.
+ICON_URL = "https://gorlev.github.io/stremio-altstore/stremio-icon-512.png"
 # A plain identifier, matching the other scripts. This used to interpolate
 # __file__, which sent the machine's absolute path — home directory and all —
 # to Stremio's CDN on every request.
@@ -243,7 +250,7 @@ def get_or_create_app(source: dict, name: str, bundle_id: str, tint: str) -> dic
         "developerName": "Stremio",
         "subtitle": "Freedom to stream.",
         "localizedDescription": f"{name} — Stremio unofficial AltStore port.",
-        "iconURL": "https://www.stremio.com/website/stremio-logo-small.png",
+        "iconURL": ICON_URL,
         "tintColor": tint,
         "category": "entertainment",
         "screenshots": [],
