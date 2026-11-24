@@ -448,6 +448,19 @@
     html[lang="ar"] .ident .name { letter-spacing: normal; }
     html[lang="ar"] .hero { max-width: 52ch; }
 
+    /* Plus Jakarta Sans ships a subset called cyrillic-ext, which is easy to
+       misread as Cyrillic support: it starts at U+0460 and so carries none of
+       the Russian alphabet (U+0410-044F). Russian was therefore being drawn
+       in whatever sans the reader's system happened to supply. Manrope is the
+       closest match to Jakarta's geometric-humanist shapes that has real
+       Cyrillic, and it is listed after Jakarta rather than before it so the
+       Latin words threaded through the page — Stremio, iPhone, AltStore —
+       keep the same face they have everywhere else. */
+    html[lang="ru"] {
+      --text: "Plus Jakarta Sans", "Manrope", ui-sans-serif, -apple-system,
+              BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
     /* ---------- narrow screens ---------- */
     @media (max-width: 720px) {
       .page { padding: 0 var(--s4) var(--s7); }
@@ -1227,16 +1240,23 @@
       return val;
     }
 
-    // Plus Jakarta Sans carries no Arabic, and the system fallbacks differ
-    // enough between platforms to change the page's weight and rhythm. Pull
-    // a matching Arabic face — but only for the visitors who need it.
-    var arabicFontAsked = false;
-    function ensureArabicFont() {
-      if (arabicFontAsked) return;
-      arabicFontAsked = true;
+    // The page font covers Latin and Vietnamese and nothing else, so a
+    // language whose script it lacks has been falling back to whatever the
+    // reader's system supplies — which differs by platform and changes the
+    // page's weight and rhythm. Each such language names its own face, and
+    // the file is fetched only for the readers who need it.
+    var FONTS = {
+      ar: "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap",
+      ru: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+    };
+    var fontAsked = {};
+    function ensureFont(code) {
+      var href = FONTS[code];
+      if (!href || fontAsked[code]) return;
+      fontAsked[code] = true;
       var l = document.createElement("link");
       l.rel = "stylesheet";
-      l.href = "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap";
+      l.href = href;
       document.head.appendChild(l);
     }
 
@@ -1244,7 +1264,7 @@
       LANG = STRINGS[code] ? code : "en";
       var def = langDef(LANG);
       if (remember) { try { localStorage.setItem("lang", LANG); } catch (e) {} }
-      if (def.rtl) ensureArabicFont();
+      ensureFont(LANG);
 
       var html = document.documentElement;
       html.setAttribute("lang", LANG);
