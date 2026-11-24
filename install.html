@@ -4,349 +4,502 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Stremio — Unofficial AltStore Source</title>
-  <meta name="description" content="Sideload Stremio on iPhone, iPad and Apple TV. One-tap source for AltStore and SideStore, auto-updated every 6 hours." />
-  <meta name="theme-color" content="#0c0b12" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%BF%3C/text%3E%3C/svg%3E" />
+  <meta name="description" content="Sideload Stremio on iPhone, iPad and Apple TV. A community source for AltStore and SideStore, mirrored from Stremio's own servers every six hours." />
+  <meta name="theme-color" content="#0c0b11" />
+  <!-- Stremio's own mark, taken unmodified from github.com/Stremio/stremio-brand
+       (logos/SVG/stremio-logo-icon-only-fullcolor.svg). It identifies the app
+       this source carries; the page says plainly that it is unofficial. -->
+  <link rel="icon" type="image/svg+xml" href="stremio-icon.svg" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
   <style>
+    /* ==================================================================
+       Built on Stremio's own design tokens, read from web.strem.io rather
+       than guessed at:
+
+         backdrop   linear-gradient(41deg, #0c0b11, #1a173e)
+         surfaces   rgba(255,255,255,.05), no stroke, 0.75rem radius
+         accent     #7b5bf5   (brand, selection, focus)
+         action     #22b365   (install and play — Stremio's CTAs are green)
+         text       rgba(255,255,255,.9) over #cac4d0
+         type       Plus Jakarta Sans, headings at 500-600, no tracking
+
+       Two deliberate departures, both for contrast: Stremio puts 90% white
+       on its green buttons, which lands at 2.2:1, so the label here is the
+       background colour instead (6.4:1); and violet is used as #9b83ff when
+       it carries text (5.9:1), keeping #7b5bf5 for fills and rules.
+
+       Tokens come in three layers — raw, meaning, scale. Nothing below may
+       use a raw colour or an off-scale length.
+       ================================================================== */
     :root {
-      --purple: #7055d9;
-      --purple-hi: #9b83ff;
-      --bg: #0c0b12;
-      --panel: #14121e;
-      --panel-2: #191627;
-      --line: #262336;
-      --text: #f0eef8;
-      --dim: #9b96b0;
-      --faint: #6c6784;
-      --good: #3ecf8e;
-      --radius: 18px;
+      /* --- layer 1: raw, as published by Stremio --------------------- */
+      --stremio-bg-1:    #0c0b11;
+      --stremio-bg-2:    #1a173e;
+      --stremio-modal:   #0f0d20;
+      --stremio-accent:  #7b5bf5;
+      --stremio-action:  #22b365;
+      --stremio-warning: #dc9718;
+      --stremio-danger:  #dc2626;
+      --stremio-fg-1:    rgba(255, 255, 255, 0.9);
+      --stremio-fg-2:    #cac4d0;
+
+      /* --- layer 2: meaning ------------------------------------------ */
+      --backdrop:   linear-gradient(41deg, var(--stremio-bg-1) 0%, var(--stremio-bg-2) 100%);
+      --surface:    rgba(255, 255, 255, 0.05);
+      --surface-hi: rgba(255, 255, 255, 0.08);
+      --well:       rgba(0, 0, 0, 0.22);
+      --hairline:   rgba(255, 255, 255, 0.08);
+
+      --ink:        var(--stremio-fg-1);
+      --ink-2:      var(--stremio-fg-2);
+      --ink-3:      rgba(255, 255, 255, 0.55);
+
+      --accent:     var(--stremio-accent);
+      --accent-ink: #9b83ff;                     /* violet that carries text */
+      --accent-wash: rgba(123, 91, 245, 0.16);
+      --action:     var(--stremio-action);
+      --action-hi:  #28c974;
+      --action-ink: var(--stremio-bg-1);
+      --caution:    var(--stremio-warning);
+      --fault:      #f05252;
+
+      /* --- layer 3: scale -------------------------------------------- */
+      --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px; --s5: 24px;
+      --s6: 32px; --s7: 48px; --s8: 72px; --s9: 104px;
+      --r: 12px;            /* Stremio's 0.75rem */
+      --r-sm: 8px;
+      --r-pill: 999px;      /* their search bar */
+
+      --text: "Plus Jakarta Sans", ui-sans-serif, -apple-system,
+              BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+      color-scheme: dark;
     }
+
     * { box-sizing: border-box; }
+
     /* Clip horizontal on the root so the page never scrolls sideways on
-       mobile — a wide child (the version table) scrolls inside its own box,
+       mobile — a wide child (the release table) scrolls inside its own box,
        not the page. Kept on <html> (not <body>) so <body> doesn't become a
        nested scroll container. */
     html { scroll-behavior: smooth; overflow-x: hidden; }
+
     body {
       margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      line-height: 1.55;
+      min-height: 100vh;
+      background: var(--stremio-bg-1);
+      color: var(--ink);
+      font-family: var(--text);
+      font-size: 16px;
+      line-height: 1.6;
       -webkit-font-smoothing: antialiased;
-      /* cinematic backdrop: two soft purple glows on near-black */
-      background-image:
-        radial-gradient(900px 420px at 85% -10%, rgba(112, 85, 217, .22), transparent 60%),
-        radial-gradient(700px 380px at -10% 30%, rgba(112, 85, 217, .12), transparent 60%);
-      background-repeat: no-repeat;
     }
-    .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px 64px; }
+    /* Stremio's backdrop is one diagonal wash. Painted on a fixed layer
+       rather than the body so it stays put while the page scrolls without
+       background-attachment, which iOS Safari handles badly. */
+    body::before {
+      content: ""; position: fixed; inset: 0; z-index: -1;
+      background: var(--backdrop);
+    }
 
-    /* ---------- header ---------- */
-    header.top {
+    ::selection { background: var(--accent); color: #fff; }
+    :focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 3px; border-radius: var(--s1); }
+
+    .page { max-width: 1020px; margin: 0 auto; padding: 0 var(--s5) var(--s8); }
+
+    /* ---------- masthead ---------- */
+    .masthead {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 22px 0 0;
+      gap: var(--s4); flex-wrap: wrap; padding: var(--s5) 0;
     }
-    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -.01em; }
-    .brand .dot {
-      width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
-      background: linear-gradient(135deg, var(--purple), #4a35a8);
-      font-size: 18px;
+    .ident { display: flex; align-items: center; gap: var(--s3); min-width: 0; }
+    /* The brand mark is a diamond with transparent corners, so it needs no
+       plate behind it. */
+    .ident .mark { width: 32px; height: 32px; flex: 0 0 auto; display: block; }
+    .ident .name { font-weight: 600; font-size: 16px; letter-spacing: -0.01em; }
+    .ident .kind { color: var(--ink-3); font-size: 14px; }
+    .masthead > a {
+      color: var(--ink-2); text-decoration: none; font-size: 14px; font-weight: 500;
+      padding: var(--s2) var(--s4); border-radius: var(--r-pill);
+      background: var(--surface);
+      transition: background-color .15s, color .15s;
     }
-    .gh {
-      color: var(--dim); text-decoration: none; font-size: 14px; font-weight: 600;
-      border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px;
-      transition: color .15s, border-color .15s;
-    }
-    .gh:hover { color: var(--text); border-color: var(--purple); }
+    .masthead > a:hover { background: var(--surface-hi); color: var(--ink); }
 
     /* ---------- hero ---------- */
-    .hero { padding: 64px 0 40px; max-width: 640px; }
-    .badge {
-      display: inline-flex; align-items: center; gap: 7px;
-      font-size: 12.5px; font-weight: 600; color: var(--purple-hi);
-      border: 1px solid rgba(112, 85, 217, .45); border-radius: 999px;
-      padding: 5px 12px; margin-bottom: 18px;
-      background: rgba(112, 85, 217, .08);
+    .hero { padding: var(--s7) 0 var(--s8); max-width: 44ch; }
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(34px, 5.4vw, 54px);
+      font-weight: 700; line-height: 1.1; letter-spacing: -0.025em;
     }
-    .badge .pulse {
-      width: 7px; height: 7px; border-radius: 50%; background: var(--good);
-      box-shadow: 0 0 0 0 rgba(62, 207, 142, .6); animation: pulse 2.4s infinite;
+    .hero .lead {
+      margin: var(--s5) 0 0; max-width: 56ch;
+      font-size: 18px; line-height: 1.62; color: var(--ink-2);
     }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(62, 207, 142, .5); }
-      70% { box-shadow: 0 0 0 8px rgba(62, 207, 142, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(62, 207, 142, 0); }
+    .freshness {
+      display: inline-flex; align-items: center; gap: var(--s2);
+      margin: var(--s5) 0 0; padding: var(--s2) var(--s4);
+      border-radius: var(--r-pill); background: var(--surface);
+      font-size: 14px; color: var(--ink-2);
     }
-    /* The dot only claims the source is alive once we have checked. If the
-       automation has stopped, it stops pulsing and changes colour rather than
-       reassuring people about something that is no longer true. */
-    .badge .pulse.warn { background: #e8a33d; box-shadow: none; animation: none; }
-    .badge .pulse.stale { background: #e5484d; box-shadow: none; animation: none; }
-    .badge.warn { color: #f0b860; border-color: rgba(232, 163, 61, .45);
-                  background: rgba(232, 163, 61, .09); }
-    .badge.stale { color: #ff8b8f; border-color: rgba(229, 72, 77, .45);
-                   background: rgba(229, 72, 77, .09); }
-    h1 {
-      font-size: clamp(34px, 6vw, 52px); line-height: 1.08;
-      letter-spacing: -.03em; margin: 0 0 16px; font-weight: 800;
+    /* The mark states what the page actually knows: filled when the updater
+       is on schedule, hollow when it has missed a cycle, red when it looks
+       stopped. No pulse — an animated dot reassures before anything has
+       been checked. */
+    .freshness .mark {
+      width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%;
+      background: var(--action); box-shadow: inset 0 0 0 1px var(--action);
     }
-    h1 .tint { color: var(--purple-hi); }
-    .hero p { color: var(--dim); font-size: 17px; margin: 0; }
+    .freshness .mark.warn { background: transparent; box-shadow: inset 0 0 0 2px var(--caution); }
+    .freshness .mark.stale { background: var(--fault); box-shadow: inset 0 0 0 1px var(--fault); }
+    .freshness.stale { color: var(--fault); }
 
-    /* ---------- platform cards ---------- */
-    /* minmax(0,1fr) — not plain 1fr. A grid item defaults to min-width:auto,
-       so the card refuses to shrink below its min-content width (~565px here,
-       driven by the nowrap source URL) and overflows narrow phones. Chromium
-       clips it; iOS Safari does not, which is why this only showed on device. */
-    .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; margin-top: 34px; }
-    @media (max-width: 720px) { .grid { grid-template-columns: minmax(0, 1fr); } }
-    .card {
-      min-width: 0;
-      background: linear-gradient(180deg, var(--panel-2), var(--panel));
-      border: 1px solid var(--line); border-radius: var(--radius);
-      padding: 24px; display: flex; flex-direction: column; gap: 16px;
+    /* ---------- the two platforms ---------- */
+    /* Not twin cards. iPhone is nearly every visitor, so it gets the panel,
+       the large version and the green action; Apple TV is a compact strip —
+       a different shape, not a scaled copy. */
+    .panel {
+      background: var(--surface); border-radius: var(--r);
+      padding: var(--s6); min-width: 0;
     }
-    .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
-    .card h2 { font-size: 19px; margin: 0; letter-spacing: -.01em; }
-    .meta { color: var(--faint); font-size: 12.5px; white-space: nowrap; }
-    .latest {
-      display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
-      padding: 14px 16px; border-radius: 12px;
-      background: rgba(112, 85, 217, .1); border: 1px solid rgba(112, 85, 217, .3);
+    .panel-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: var(--s3) var(--s5); flex-wrap: wrap;
     }
-    .latest .v { font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
-    .latest .sub { color: var(--dim); font-size: 13px; }
-    /* "What's new" — real changelog for the newest build */
-    .notes { border: 1px solid var(--line); border-radius: 12px; background: #0f0d18; }
-    .notes[hidden] { display: none; }
-    .notes summary {
-      cursor: pointer; padding: 11px 14px; font-size: 13.5px; font-weight: 650;
-      color: var(--dim); list-style: none; user-select: none;
+    .panel-head h2 { margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.015em; }
+    .count { color: var(--ink-3); font-size: 14px; white-space: nowrap; }
+
+    .stand { display: flex; align-items: flex-end; gap: var(--s5) var(--s7); flex-wrap: wrap; margin-top: var(--s5); }
+    .vnum {
+      font-size: clamp(40px, 7vw, 60px); font-weight: 700;
+      line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums;
     }
-    .notes summary::-webkit-details-marker { display: none; }
-    .notes summary::after { content: " ▾"; color: var(--faint); }
-    .notes[open] summary::after { content: " ▴"; }
-    .notes summary:hover { color: var(--text); }
-    .notes-body {
-      margin: 0; padding: 0 14px 14px; font-size: 13px; line-height: 1.6;
-      color: var(--dim); white-space: pre-wrap; word-wrap: break-word;
-      font-family: inherit; max-height: 260px; overflow-y: auto;
+    .spec { display: flex; gap: var(--s6); flex-wrap: wrap; margin: 0 0 var(--s1); }
+    .spec dt { font-size: 13px; color: var(--ink-3); line-height: 1.35; }
+    .spec dd {
+      margin: 2px 0 0; font-size: 15px; font-weight: 500; color: var(--ink);
+      font-variant-numeric: tabular-nums; line-height: 1.35;
     }
 
-    .urlrow { display: flex; gap: 8px; min-width: 0; }
+    .source { margin-top: var(--s6); }
+    .source-label { margin: 0 0 var(--s2); font-size: 13px; color: var(--ink-3); }
+    .urlrow { display: flex; gap: var(--s2); min-width: 0; }
     .url {
-      flex: 1; min-width: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 12px; color: var(--dim);
-      background: #0f0d18; border: 1px solid var(--line); border-radius: 10px;
-      padding: 10px 12px; overflow-x: auto; white-space: nowrap;
-      -webkit-overflow-scrolling: touch;
+      flex: 1; min-width: 0;
+      background: var(--well); border-radius: var(--r-pill);
+      padding: var(--s3) var(--s5);
+      font-family: var(--mono); font-size: 13px; color: var(--ink);
+      overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;
     }
     .copy {
-      flex: 0 0 auto; border: 1px solid var(--line); background: #0f0d18; color: var(--dim);
-      border-radius: 10px; padding: 0 14px; font-size: 13px; font-weight: 600; cursor: pointer;
-      transition: all .15s;
+      flex: 0 0 auto; cursor: pointer; font-family: var(--text);
+      font-size: 14px; font-weight: 600; color: var(--ink);
+      background: var(--surface-hi); border: 0; border-radius: var(--r-pill);
+      padding: 0 var(--s5);
+      transition: background-color .15s, color .15s;
     }
-    .copy:hover { color: #fff; border-color: var(--purple); }
-    .copy.done { background: var(--good); border-color: var(--good); color: #06251733; color: #052e1c; }
-    .btns { display: flex; gap: 10px; }
-    .btn {
-      flex: 1; text-align: center; text-decoration: none; font-weight: 700; font-size: 14.5px;
-      padding: 13px 10px; border-radius: 12px; color: #fff;
-      background: linear-gradient(135deg, var(--purple), #5b41c4);
-      transition: filter .15s, transform .08s;
-    }
-    .btn:hover { filter: brightness(1.12); }
-    .btn:active { transform: translateY(1px); }
-    .btn.ghost {
-      background: transparent; color: var(--purple-hi);
-      border: 1px solid rgba(112, 85, 217, .5);
-    }
-    .hint { color: var(--faint); font-size: 12.5px; margin: 0; }
-    .hint strong { color: var(--dim); }
+    .copy:hover { background: rgba(255, 255, 255, 0.14); }
+    .copy.done { background: var(--action); color: var(--action-ink); }
 
-    /* ---------- versions ---------- */
-    .versions { margin-top: 56px; }
-    .versions > h2 { font-size: 24px; letter-spacing: -.02em; margin: 0 0 6px; }
-    .versions > p { color: var(--dim); font-size: 14.5px; margin: 0 0 22px; }
-    .vgroup { margin-bottom: 26px; }
-    .vgroup h3 {
-      font-size: 13px; text-transform: uppercase; letter-spacing: .08em;
-      color: var(--faint); margin: 0 0 10px; font-weight: 700;
+    .acts { display: flex; gap: var(--s3); flex-wrap: wrap; margin-top: var(--s4); }
+    .act {
+      text-decoration: none; font-size: 15px; font-weight: 600;
+      padding: var(--s3) var(--s6); border-radius: var(--r-pill);
+      transition: background-color .15s, color .15s;
+    }
+    /* Green, because in Stremio green is the install-and-play colour. */
+    .act.primary { background: var(--action); color: var(--action-ink); }
+    .act.primary:hover { background: var(--action-hi); }
+    .act.secondary { background: var(--surface-hi); color: var(--ink); }
+    .act.secondary:hover { background: rgba(255, 255, 255, 0.14); }
+
+    .aside { margin: var(--s4) 0 0; font-size: 14px; color: var(--ink-3); max-width: 62ch; }
+    .aside b { color: var(--ink-2); font-weight: 600; }
+
+    /* ---------- what's new ---------- */
+    .notes { margin-top: var(--s5); max-width: 70ch; }
+    .notes[hidden] { display: none; }
+    .notes summary {
+      cursor: pointer; list-style: none; user-select: none;
+      display: inline-flex; align-items: center; gap: var(--s2);
+      font-size: 14px; font-weight: 500; color: var(--ink-2);
+      transition: color .15s;
+    }
+    .notes summary::-webkit-details-marker { display: none; }
+    .notes summary:hover { color: var(--ink); }
+    .notes summary .tri {
+      width: 0; height: 0; flex: 0 0 auto;
+      border-left: 5px solid currentColor;
+      border-top: 4px solid transparent; border-bottom: 4px solid transparent;
+      transition: transform .15s ease;
+    }
+    .notes[open] summary { color: var(--ink); }
+    .notes[open] summary .tri { transform: rotate(90deg); }
+    .notes-body {
+      margin: var(--s3) 0 0; padding: var(--s5);
+      background: var(--well); border-radius: var(--r);
+      font-size: 14px; line-height: 1.7; color: var(--ink-2);
+      white-space: pre-wrap; word-wrap: break-word;
+      max-height: 280px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+
+    /* ---------- Apple TV strip ---------- */
+    .strip {
+      margin-top: var(--s4); padding: var(--s5) var(--s6);
+      background: var(--surface); border-radius: var(--r); min-width: 0;
+    }
+    .strip-top {
+      display: flex; align-items: baseline; gap: var(--s3) var(--s5); flex-wrap: wrap;
+    }
+    .strip-top h2 { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+    .strip-top .tv-ver { font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .strip-top .tv-meta { font-size: 14px; color: var(--ink-3); }
+    .strip-top .count { margin-left: auto; }
+    .strip .source { margin-top: var(--s4); }
+    .strip .acts { margin-top: var(--s3); }
+    .strip .act { font-size: 14px; padding: var(--s2) var(--s5); }
+    .strip .notes { margin-top: var(--s4); }
+
+    /* ---------- releases ---------- */
+    .releases { margin-top: var(--s9); }
+    .releases > h2 { margin: 0; font-size: clamp(24px, 3.4vw, 32px); font-weight: 700; letter-spacing: -0.02em; }
+    .releases > p { max-width: 64ch; margin: var(--s3) 0 var(--s6); font-size: 15px; color: var(--ink-2); }
+    .vgroup { margin-bottom: var(--s7); }
+    .vgroup:last-child { margin-bottom: 0; }
+    .vgroup h3 { margin: 0 0 var(--s3); font-size: 15px; font-weight: 600; color: var(--ink-2); }
+    .vt-scroll {
+      min-width: 0; max-width: 100%;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      background: var(--surface); border-radius: var(--r);
     }
     table.vt { width: 100%; border-collapse: collapse; font-size: 14px; }
-    .vt-scroll {
-      max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
-      border: 1px solid var(--line); border-radius: 14px; background: var(--panel);
-    }
     .vt th {
-      text-align: left; color: var(--faint); font-size: 11.5px; text-transform: uppercase;
-      letter-spacing: .07em; font-weight: 700; padding: 12px 16px;
-      border-bottom: 1px solid var(--line);
+      text-align: left; font-weight: 500; font-size: 13px; color: var(--ink-3);
+      padding: var(--s3) var(--s5); border-bottom: 1px solid var(--hairline);
+      white-space: nowrap;
     }
-    .vt td { padding: 12px 16px; border-bottom: 1px solid var(--line); white-space: nowrap; }
-    .vt tr:last-child td { border-bottom: none; }
-    .vt .ver { font-weight: 700; }
-    .chip {
-      display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .04em;
-      color: var(--good); border: 1px solid rgba(62, 207, 142, .4); border-radius: 999px;
-      padding: 1px 8px; margin-left: 8px; vertical-align: 1px;
+    .vt td {
+      padding: var(--s3) var(--s5); border-bottom: 1px solid var(--hairline);
+      white-space: nowrap; vertical-align: baseline;
     }
-    .vt .dim { color: var(--dim); }
+    .vt tbody tr:last-child td { border-bottom: none; }
+    .vt .num { text-align: right; }
+    .vt .ver { font-weight: 600; font-variant-numeric: tabular-nums; }
+    /* Unbreakable, so where the version cell is allowed to wrap, whole
+       tokens move to the next line — never "build" away from its number. */
+    .vt .build { color: var(--ink-3); font-weight: 400; white-space: nowrap; margin-left: var(--s1); }
+    .vt .dim { color: var(--ink-2); }
+    .now {
+      margin-left: var(--s2); padding: 1px var(--s2);
+      border-radius: var(--r-pill); background: var(--accent-wash);
+      color: var(--accent-ink); font-size: 12px; font-weight: 600;
+    }
 
     /* Rows whose build has a changelog expand to show it. */
     .vt tr.has-notes { cursor: pointer; }
-    .vt tr.has-notes:hover td { background: rgba(112, 85, 217, .07); }
-    .vt tr.has-notes:focus-visible { outline: 2px solid var(--purple); outline-offset: -2px; }
-    .chev {
-      display: inline-block; margin-right: 7px; color: var(--faint);
-      transition: transform .15s ease, color .15s ease;
+    .vt tr.has-notes:hover td { background: rgba(255, 255, 255, 0.04); }
+    .vt tr.has-notes:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: -2px; }
+    .tri-row {
+      display: inline-block; width: 0; height: 0;
+      margin-right: var(--s2); vertical-align: 1px;
+      border-left: 5px solid var(--ink-3);
+      border-top: 4px solid transparent; border-bottom: 4px solid transparent;
+      transition: transform .15s ease, border-left-color .15s ease;
     }
-    .vt tr.open .chev { transform: rotate(90deg); color: var(--purple-hi); }
-    .chev-hint { color: var(--purple-hi); }
+    .vt tr.has-notes:hover .tri-row { border-left-color: var(--ink); }
+    .vt tr.open .tri-row { transform: rotate(90deg); border-left-color: var(--accent-ink); }
     tr[hidden] { display: none; }
-    .notes-row td { padding: 0; background: #0f0d18; white-space: normal; }
-    .notes-row:hover td { background: #0f0d18; }
+    .notes-row td { padding: 0; background: var(--well); white-space: normal; }
+    .notes-row:hover td { background: var(--well); }
     .notes-wrap { position: relative; }
     /* Only added once we know the text really is clipped, so a short
        changelog never gets a fade over nothing. */
     .notes-wrap.clipped::after {
-      content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 30px;
-      background: linear-gradient(rgba(15, 13, 24, 0), #0f0d18); pointer-events: none;
+      content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 32px;
+      background: linear-gradient(rgba(0, 0, 0, 0), rgba(5, 4, 12, 0.85));
+      pointer-events: none;
     }
     .notes-box {
-      padding: 12px 16px 16px; font-size: 12.5px; line-height: 1.65;
-      color: var(--dim); white-space: pre-wrap; word-wrap: break-word;
-      max-height: 220px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      padding: var(--s5) var(--s5) var(--s6);
+      font-size: 13.5px; line-height: 1.7; color: var(--ink-2);
+      white-space: pre-wrap; word-wrap: break-word;
+      max-height: 240px; overflow-y: auto; -webkit-overflow-scrolling: touch;
     }
-    .vt a.dl { color: var(--purple-hi); text-decoration: none; font-weight: 600; }
-    .vt a.dl:hover { text-decoration: underline; }
+    /* A filled pill on every one of a dozen rows reads as noise. The
+       download is a quiet text link; the row's own hover carries it. */
+    .vt a.dl {
+      color: var(--ink-2); text-decoration: none; font-weight: 500;
+      transition: color .15s;
+    }
+    .vt a.dl:hover { color: var(--accent-ink); text-decoration: underline; }
     .sha {
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px;
-      color: var(--faint); cursor: pointer; border: none; background: none; padding: 0;
+      font-family: var(--mono); font-size: 13px; color: var(--ink-3);
+      cursor: pointer; border: 0; background: none; padding: 0;
+      transition: color .15s;
     }
-    .sha:hover { color: var(--purple-hi); }
-    .sha.done { color: var(--good); }
-    .loading { color: var(--faint); font-size: 14px; padding: 18px; }
+    .sha:hover { color: var(--ink); }
+    .sha.done { color: var(--action); }
+    .loading { color: var(--ink-3); font-size: 15px; padding: var(--s5); }
 
     /* ---------- footer ---------- */
-    footer {
-      margin-top: 64px; padding-top: 26px; border-top: 1px solid var(--line);
-      color: var(--faint); font-size: 13px;
-    }
-    footer a { color: var(--dim); }
-    footer a:hover { color: var(--purple-hi); }
+    footer { margin-top: var(--s9); padding-top: var(--s5); border-top: 1px solid var(--hairline);
+             color: var(--ink-3); font-size: 14px; }
+    footer p { max-width: 72ch; margin: 0 0 var(--s3); }
+    footer p:last-child { margin-bottom: 0; }
+    footer code { font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
+    footer a { color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--hairline); }
+    footer a:hover { color: var(--accent-ink); border-color: var(--accent-ink); }
 
-    /* ---------- mobile ---------- */
-    @media (max-width: 560px) {
-      .wrap { padding: 0 16px 56px; }
-      .card { padding: 20px; }
-      .hero { padding: 48px 0 32px; }
-      .hero p { font-size: 16px; }
-      .latest .v { font-size: 22px; }
-      /* Title + release count can't share one line on a phone — stack them
-         so the count never gets clipped off the right edge. */
-      .card-head { flex-direction: column; align-items: flex-start; gap: 4px; }
-      /* let the release count wrap instead of forcing the card wider */
-      .meta { white-space: normal; }
+    /* ---------- narrow screens ---------- */
+    @media (max-width: 720px) {
+      .page { padding: 0 var(--s4) var(--s7); }
+      .hero { padding: var(--s6) 0 var(--s7); }
+      .hero .lead { font-size: 17px; }
+      .panel { padding: var(--s5); }
+      .strip { padding: var(--s5); }
+      .stand { gap: var(--s4) var(--s5); }
+      .spec { gap: var(--s5); }
       /* Two side-by-side buttons can't shrink below their label width
-         ("Add to AltStore" alone is ~255px), which overflowed the card on
+         ("Add to AltStore" alone is ~255px), which overflowed the panel on
          narrow screens. Stack them full-width instead. */
-      .btns { flex-direction: column; }
-      .btn { font-size: 15px; padding: 14px 10px; }
-      /* Fit the table on a phone with no horizontal scrolling at all: drop
-         the redundant "App" column (named in the cards above) and the
-         SHA-256 column (a desktop/verification concern — the hashes stay in
-         the JSON), and tighten the remaining cells. */
-      .vt th, .vt td { padding: 10px 8px; font-size: 12.5px; }
+      .acts { flex-direction: column; align-items: stretch; }
+      .act { text-align: center; }
+      .strip-top .count { margin-left: 0; }
+      .releases { margin-top: var(--s8); }
+      footer { margin-top: var(--s8); }
+      /* Fit the release list on a phone with no horizontal scrolling at
+         all: drop the redundant "App" column (named in the panels above)
+         and the fingerprint column (a desktop verification concern — the
+         hashes stay in the JSON), and tighten the remaining cells. */
+      .vt th, .vt td { padding: var(--s3) var(--s2); font-size: 13px; }
       .vt th:nth-child(2), .vt td:nth-child(2),
       .vt th:nth-child(5), .vt td:nth-child(5) { display: none; }
-      .chip { margin-left: 6px; font-size: 9.5px; padding: 1px 6px; }
+      /* "2.1.3 build 28 now" on one line is the widest thing in the list and
+         pushed the other columns past a 375px phone. Let this one cell wrap
+         so the marker sits under its version instead. */
+      .vt td.ver { white-space: normal; }
+      .now { display: inline-block; margin: var(--s1) 0 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header class="top">
-      <div class="brand"><span class="dot">🍿</span> stremio‑altstore</div>
-      <a class="gh" href="https://github.com/gorlev/stremio-altstore">GitHub ↗</a>
+  <div class="page">
+    <header class="masthead">
+      <div class="ident">
+        <img class="mark" src="stremio-icon.svg" alt="" width="32" height="32" />
+        <span class="name">stremio&#8209;altstore</span>
+        <span class="kind">Unofficial source</span>
+      </div>
+      <a href="https://github.com/gorlev/stremio-altstore">Source on GitHub</a>
     </header>
 
     <section class="hero">
-      <span class="badge" id="freshness" title="Checked automatically every 6 hours">
-        <span class="pulse" id="freshness-dot"></span>
-        <span id="freshness-text">Auto-updated every 6 hours · unofficial</span>
-      </span>
-      <h1>Stremio,<br /><span class="tint">sideloaded.</span></h1>
-      <p>Movies and series on your iPhone, iPad and Apple TV — no App Store needed.
-         Add the source below to AltStore, SideStore, Feather or any signing app,
-         and every new Stremio release lands on your device automatically.</p>
+      <h1>Stremio on your iPhone, iPad and Apple TV</h1>
+      <p class="lead">Stremio builds these apps and serves them from its own
+         servers, but never lists them on the App Store. This source mirrors every
+         build and re-checks it every six hours, so your signing app picks up a new
+         release the day it ships.</p>
+      <p class="freshness" id="freshness" title="The updater runs every six hours">
+        <span class="mark" id="freshness-dot"></span>
+        <span id="freshness-text">Checked every six hours</span>
+      </p>
     </section>
 
-    <div class="grid">
-      <section class="card" id="card-ios">
-        <div class="card-head">
-          <h2>📱 iPhone &amp; iPad</h2>
-          <span class="meta" id="meta-ios">…</span>
-        </div>
-        <div class="latest">
-          <span class="v" id="latest-ios">—</span>
-          <span class="sub" id="latest-ios-sub"></span>
-        </div>
-        <details class="notes" id="notes-ios" hidden>
-          <summary>What's new</summary>
-          <p class="notes-body" id="notes-ios-body"></p>
-        </details>
+    <article class="panel" id="card-ios">
+      <header class="panel-head">
+        <h2>iPhone &amp; iPad</h2>
+        <span class="count" id="meta-ios">&nbsp;</span>
+      </header>
+
+      <div class="stand">
+        <span class="vnum" id="latest-ios">&mdash;</span>
+        <dl class="spec">
+          <div><dt>Build</dt><dd id="build-ios">&mdash;</dd></div>
+          <div><dt>Released</dt><dd id="date-ios">&mdash;</dd></div>
+          <div><dt>Size</dt><dd id="size-ios">&mdash;</dd></div>
+        </dl>
+      </div>
+
+      <div class="source">
+        <p class="source-label">Source URL</p>
         <div class="urlrow">
           <div class="url" id="url-ios"></div>
           <button class="copy" data-copy="url-ios">Copy</button>
         </div>
-        <div class="btns">
-          <a class="btn" id="alt-ios">Add to AltStore</a>
-          <a class="btn ghost" id="side-ios">SideStore</a>
-        </div>
-        <p class="hint"><strong>Feather, ESign, Scarlet?</strong> Copy the URL above into your app's Sources section.</p>
-      </section>
+      </div>
 
-      <section class="card" id="card-tvos">
-        <div class="card-head">
-          <h2>📺 Apple TV</h2>
-          <span class="meta" id="meta-tvos">…</span>
-        </div>
-        <div class="latest">
-          <span class="v" id="latest-tvos">—</span>
-          <span class="sub" id="latest-tvos-sub"></span>
-        </div>
-        <details class="notes" id="notes-tvos" hidden>
-          <summary>What's new</summary>
-          <p class="notes-body" id="notes-tvos-body"></p>
-        </details>
+      <div class="acts">
+        <a class="act primary" id="alt-ios">Add to AltStore</a>
+        <a class="act secondary" id="side-ios">Add to SideStore</a>
+      </div>
+      <p class="aside"><b>Using Feather, ESign or Scarlet?</b> Paste the URL above
+         into the app's Sources screen.</p>
+
+      <details class="notes" id="notes-ios" hidden>
+        <summary><span class="tri"></span>What's new in this build</summary>
+        <p class="notes-body" id="notes-ios-body"></p>
+      </details>
+    </article>
+
+    <article class="strip" id="card-tvos">
+      <div class="strip-top">
+        <h2>Apple TV</h2>
+        <span class="tv-ver" id="latest-tvos">&mdash;</span>
+        <span class="tv-meta">build <span id="build-tvos">&mdash;</span></span>
+        <span class="tv-meta"><span id="date-tvos">&mdash;</span></span>
+        <span class="tv-meta"><span id="size-tvos">&mdash;</span></span>
+        <span class="count" id="meta-tvos">&nbsp;</span>
+      </div>
+
+      <div class="source">
         <div class="urlrow">
           <div class="url" id="url-tvos"></div>
           <button class="copy" data-copy="url-tvos">Copy</button>
         </div>
-        <div class="btns">
-          <a class="btn" id="alt-tvos">Add to AltStore</a>
-          <a class="btn ghost" id="side-tvos">SideStore</a>
-        </div>
-        <p class="hint"><strong>On the TV itself?</strong> Type the URL into your signing app manually — copy it here first.</p>
-      </section>
-    </div>
+      </div>
 
-    <section class="versions">
-      <h2>Every release, verified</h2>
-      <p>Loaded live from the source JSON, so this list is never out of date. Each IPA links
-         straight to Stremio's own CDN. Rows marked&nbsp;<span class="chev-hint">▸</span> have a
-         changelog — tap to read it. On wider screens every row also shows its SHA‑256
-         fingerprint, which you can tap to copy.</p>
-      <div id="version-groups"><div class="loading">Loading versions…</div></div>
+      <div class="acts">
+        <a class="act secondary" id="alt-tvos">Add to AltStore</a>
+        <a class="act secondary" id="side-tvos">Add to SideStore</a>
+      </div>
+      <p class="aside"><b>Setting this up on the TV itself?</b> tvOS signing apps
+         have no clipboard to paste into, so type the URL in by hand.</p>
+
+      <details class="notes" id="notes-tvos" hidden>
+        <summary><span class="tri"></span>What's new in this build</summary>
+        <p class="notes-body" id="notes-tvos-body"></p>
+      </details>
+    </article>
+
+    <section class="releases">
+      <h2>Every release</h2>
+      <p>Read live from the source files, so this never falls behind what your
+         signing app sees. Each download goes straight to Stremio's own CDN. Rows
+         carrying a changelog open when you select them, and on a wider screen every
+         row shows the SHA&#8209;256 fingerprint of its IPA — select a fingerprint
+         to copy it in full.</p>
+      <div id="version-groups"><div class="loading">Reading the source files…</div></div>
     </section>
 
     <footer>
-      <p>Unofficial community project — not affiliated with Stremio or SmartCode OOD.
-         IPAs are served by Stremio's public CDN (<code>dl.strem.io</code>); this repo only publishes metadata.<br />
-         Apps signed with a free Apple ID expire after 7 days.
-         <a href="https://github.com/gorlev/stremio-altstore">Source &amp; issues on GitHub</a>.</p>
+      <p>A community project, not affiliated with Stremio or SmartCode OOD. The IPAs
+         are served by Stremio's public CDN at <code>dl.strem.io</code>; this repository
+         publishes only the metadata that points at them.</p>
+      <p>Apps signed with a free Apple ID stop opening after seven days, so you will
+         need to re-sign. <a href="https://github.com/gorlev/stremio-altstore">Read the
+         source or report a problem on GitHub</a>.</p>
     </footer>
   </div>
 
@@ -374,10 +527,10 @@
       return days === 1 ? "a day ago" : days + " days ago";
     }
 
-    // Turn the badge's "alive" dot into something earned rather than decorative:
-    // ask GitHub when the updater last completed successfully. Read-only, no
-    // token, and the page degrades to its static text if the call fails or the
-    // unauthenticated rate limit is reached.
+    // Make the freshness mark earned rather than decorative: ask GitHub when
+    // the updater last completed successfully. Read-only, no token, and the
+    // page keeps its static text if the call fails or the unauthenticated
+    // rate limit is reached.
     (function showFreshness() {
       var RUNS = "https://api.github.com/repos/gorlev/stremio-altstore/actions/workflows/update.yml/runs"
                + "?status=success&per_page=1";
@@ -395,15 +548,15 @@
           var hours = age / 3600000;
           // Runs every 6 hours, so under 12 means at most one missed cycle.
           if (hours < 12) {
-            text.textContent = "Checked " + relativeTime(age) + " · unofficial";
+            text.textContent = "Checked " + relativeTime(age);
           } else if (hours < 48) {
             badge.classList.add("warn"); dot.classList.add("warn");
-            text.textContent = "Last checked " + relativeTime(age) + " · unofficial";
+            text.textContent = "Last checked " + relativeTime(age);
           } else {
             badge.classList.add("stale"); dot.classList.add("stale");
             text.textContent = "Last checked " + relativeTime(age) + " — updates may have stopped";
           }
-          badge.title = "Updater last succeeded " + new Date(run.updated_at).toLocaleString();
+          badge.title = "The updater last succeeded " + new Date(run.updated_at).toLocaleString();
         })
         .catch(function () { /* keep the static text */ });
     })();
@@ -433,6 +586,10 @@
       s.textContent = text;
       return s;
     }
+    function setText(id, text) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = text;
+    }
     // Only ever link to the CDN the gate allows. Assigning a href via the DOM
     // executes nothing by itself, but a javascript: URL would still run on a
     // click, so the scheme is checked rather than assumed.
@@ -446,7 +603,7 @@
           el.classList.add("done");
           var old = el.dataset.label || el.textContent;
           el.dataset.label = old;
-          el.textContent = el.classList.contains("sha") ? "copied!" : "Copied";
+          el.textContent = el.classList.contains("sha") ? "copied" : "Copied";
           setTimeout(function () { el.textContent = el.dataset.label; el.classList.remove("done"); }, 1500);
         };
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -477,7 +634,7 @@
       results.forEach(function (res) {
         var p = res.plat, d = res.data;
         if (!d) {
-          document.getElementById("meta-" + p.key).textContent = "";
+          setText("meta-" + p.key, "Source file unavailable");
           return;
         }
         var apps = d.apps || [];
@@ -498,14 +655,15 @@
           return 0;
         });
 
-        // hero card: latest + meta
+        // the entry at the top of the page: newest build and its specification
         if (all.length) {
           var top = all[0];
-          document.getElementById("latest-" + p.key).textContent = "v" + top.v.version;
-          document.getElementById("latest-" + p.key + "-sub").textContent =
-            "build " + top.v.buildVersion + " · " + fmtDate(top.v.date) + " · " + fmtMB(top.v.size);
-          document.getElementById("meta-" + p.key).textContent =
-            all.length + " releases · updated " + fmtDate(top.v.date);
+          setText("latest-" + p.key, top.v.version);
+          setText("build-" + p.key, top.v.buildVersion || "—");
+          setText("date-" + p.key, fmtDate(top.v.date));
+          setText("size-" + p.key, fmtMB(top.v.size));
+          setText("meta-" + p.key,
+            all.length === 1 ? "1 release" : all.length + " releases");
 
           // Real changelog, when we managed to capture one for this build.
           var notes = top.v.localizedDescription;
@@ -516,35 +674,38 @@
           }
         }
 
-        // versions table
+        // the schedule
         var g = document.createElement("div");
         g.className = "vgroup";
-        g.innerHTML = "<h3>" + p.label + "</h3>";
+        var h3 = document.createElement("h3");
+        h3.textContent = p.label;
+        g.appendChild(h3);
         var scroll = document.createElement("div");
         scroll.className = "vt-scroll";
         var t = document.createElement("table");
         t.className = "vt";
-        t.innerHTML = "<thead><tr><th>Version</th><th>App</th><th>Date</th><th>Size</th><th>SHA-256</th><th></th></tr></thead>";
+        t.innerHTML = "<thead><tr><th>Version</th><th>App</th><th>Released</th>"
+                    + "<th class='num'>Size</th><th>Fingerprint</th><th></th></tr></thead>";
         var tb = document.createElement("tbody");
         all.forEach(function (e, i) {
           var tr = document.createElement("tr");
           var sha = e.v.sha256 || "";
           var notes = isRealNote(e.v.localizedDescription) ? e.v.localizedDescription : null;
           var cVer = addCell(tr, "ver");
-          if (notes) cVer.appendChild(span("chev", "▸"));
-          cVer.appendChild(document.createTextNode("v" + e.v.version + " "));
-          cVer.appendChild(span("dim", "b" + e.v.buildVersion));
-          if (i === 0) cVer.appendChild(span("chip", "LATEST"));
+          if (notes) cVer.appendChild(span("tri-row", ""));
+          cVer.appendChild(document.createTextNode(e.v.version + " "));
+          cVer.appendChild(span("build", "build " + e.v.buildVersion));
+          if (i === 0) cVer.appendChild(span("now", "latest"));
 
           addCell(tr, "dim").textContent = e.app.name || "";
           addCell(tr, "dim").textContent = fmtDate(e.v.date);
-          addCell(tr, "dim").textContent = fmtMB(e.v.size);
+          addCell(tr, "dim num").textContent = fmtMB(e.v.size);
 
           var cSha = addCell(tr, "");
           if (sha) {
             var shaBtn = document.createElement("button");
             shaBtn.className = "sha";
-            shaBtn.title = "Copy full hash";
+            shaBtn.title = "Copy the full SHA-256";
             shaBtn.textContent = sha.slice(0, 10) + "…";
             cSha.appendChild(shaBtn);
             bindCopy(shaBtn, function () { return sha; });
@@ -558,7 +719,7 @@
             var dl = document.createElement("a");
             dl.className = "dl";
             dl.href = href;
-            dl.textContent = "IPA ↓";
+            dl.textContent = "Get IPA";
             cDl.appendChild(dl);
           } else {
             cDl.appendChild(span("dim", "—"));
@@ -590,7 +751,7 @@
             tb.appendChild(detail);
 
             var toggle = function (ev) {
-              // Let the hash button and the download link do their own job.
+              // Let the fingerprint button and the download link do their own job.
               if (ev && ev.target && ev.target.closest && ev.target.closest("a, button")) return;
               var opening = detail.hidden;
               detail.hidden = !opening;
@@ -613,7 +774,8 @@
         groupsEl.appendChild(g);
       });
       if (!groupsEl.children.length) {
-        groupsEl.innerHTML = "<div class='loading'>Couldn't load version data — view the JSON files on GitHub instead.</div>";
+        groupsEl.innerHTML = "<div class='loading'>The source files didn't load. "
+          + "Open stremio-ios.json or stremio-tvos.json on GitHub to read them directly.</div>";
       }
     });
   </script>
