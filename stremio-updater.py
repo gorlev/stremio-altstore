@@ -55,7 +55,10 @@ UPSTREAM_SOURCE = "https://dl.strem.io/apple/altstore/source.json"
 # that normally advances by one per release, so this is generous; the
 # upstream hint covers anything that jumps further.
 BUILD_LOOKAHEAD = 8
-USER_AGENT = f"stremio-altstore/{__file__}/1.0 (+github-actions)"
+# A plain identifier, matching the other scripts. This used to interpolate
+# __file__, which sent the machine's absolute path — home directory and all —
+# to Stremio's CDN on every request.
+USER_AGENT = "stremio-altstore/updater/1.0"
 ipa_plist.USER_AGENT = USER_AGENT
 http_request = ipa_plist.http_request
 
