@@ -176,16 +176,6 @@
           "size": 77732193,
           "sha256": "5fb0a315a8987981afc255192f2390637ce482e91a534f0509297843af6b0f9c",
           "minOSVersion": "13.0"
-        },
-        {
-          "version": "2.0.1",
-          "buildVersion": "15",
-          "date": "2026-06-15",
-          "localizedDescription": "Stremio 2.0.1 (build 15).",
-          "downloadURL": "https://dl.strem.io/apple/2.0.1b15/ios/stremio_iOS.ipa",
-          "size": 77732699,
-          "sha256": "d4b022c25245c06b6e4425a243b96b9a84501dde8e7bd7b841362aa74be91f34",
-          "minOSVersion": "13.0"
         }
       ],
       "version": "2.1.3",
