@@ -418,7 +418,7 @@ def main() -> int:
         print(f"[ERROR] {e}")
 
     checked = ", ".join(p.name for p in paths)
-    print(f"\n=== Validation summary ===")
+    print("\n=== Validation summary ===")
     print(f"Checked: {checked}")
     print(f"Errors: {len(rep.errors)}, warnings: {len(rep.warnings)}")
 

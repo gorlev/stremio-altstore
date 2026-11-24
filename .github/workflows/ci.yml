@@ -45,3 +45,11 @@ jobs:
         # argument parser is intact, which is what a syntax or signature
         # mistake would break.
         run: python3 stremio-updater.py --help
+
+      - name: Lint
+        # Pinned on purpose. A new ruff release can add a rule, and a linter
+        # that fails a pull request over something the author never wrote is
+        # how teams learn to ignore CI. Bump it deliberately.
+        run: |
+          pip install --quiet ruff==0.15.9
+          ruff check .
