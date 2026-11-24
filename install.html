@@ -465,6 +465,13 @@
     @media (max-width: 720px) {
       .page { padding: 0 var(--s4) var(--s7); }
       .masthead { gap: var(--s3); }
+      /* The masthead wraps here, which puts the picker at the left edge of
+         its row. A menu anchored to the button's right edge then opens
+         leftwards and off the screen — and because the root clips
+         horizontal overflow, it is silently cut rather than scrollable.
+         Anchor it to the start edge instead, where it has the whole width
+         to open into. */
+      .langpick-menu { inset-inline-end: auto; inset-inline-start: 0; }
       .hero { padding: var(--s6) 0 var(--s7); }
       .hero .lead { font-size: 17px; }
       .panel { padding: var(--s5); }
@@ -661,6 +668,9 @@
       { code: "es", native: "Español",  locale: "es-ES" },
       { code: "fr", native: "Français", locale: "fr-FR" },
       { code: "de", native: "Deutsch",  locale: "de-DE" },
+      { code: "pt", native: "Português (BR)", locale: "pt-BR" },
+      { code: "it", native: "Italiano", locale: "it-IT" },
+      { code: "pl", native: "Polski",   locale: "pl-PL" },
       { code: "ru", native: "Русский",  locale: "ru-RU" },
       { code: "ar", native: "العربية",  locale: "ar-u-nu-latn", rtl: true }
     ];
@@ -875,6 +885,76 @@
                 "footer.resign": "Si firmas con un Apple ID gratuito, las apps dejan de abrirse a los siete días y hay que volver a firmarlas.",
                 "footer.link": "Mira el código o informa de un problema en GitHub"
           },
+          "pt": {
+                "meta.title": "Stremio — fonte não oficial para AltStore",
+                "meta.description": "Instale o Stremio no iPhone, iPad e Apple TV sem passar pela App Store. Fonte da comunidade para AltStore e SideStore, verificada a cada seis horas com o que a Stremio publica.",
+                "ident.kind": "Fonte não oficial",
+                "nav.github": "Ver o código no GitHub",
+                "lang.label": "Idioma",
+                "hero.h1": "Stremio no seu iPhone, iPad e Apple TV",
+                "hero.lead": "A Stremio compila esses apps e os hospeda nos próprios servidores, mas nunca publica na App Store. Aqui estão todos, e a lista é verificada a cada seis horas: quando sai uma versão nova, ela já aparece no AltStore e no SideStore no mesmo dia.",
+                "fresh.title": "A lista é verificada a cada seis horas",
+                "fresh.static": "Verificada a cada seis horas",
+                "fresh.checked": "Verificada {time}",
+                "fresh.last": "Última verificação {time}",
+                "fresh.stopped": "Última verificação {time} — pode ser que as atualizações tenham parado",
+                "fresh.succeeded": "A última verificação que deu certo foi em {date}",
+                "time.justNow": "agora mesmo",
+                "time.minutes": {
+                      "one": "há 1 minuto",
+                      "other": "há {n} minutos"
+                },
+                "time.hours": {
+                      "one": "há uma hora",
+                      "other": "há {n} horas"
+                },
+                "time.days": {
+                      "one": "há um dia",
+                      "other": "há {n} dias"
+                },
+                "ios.h2": "iPhone e iPad",
+                "spec.build": "Build",
+                "spec.released": "Lançamento",
+                "spec.size": "Tamanho",
+                "source.label": "URL da fonte",
+                "action.copy": "Copiar",
+                "action.copied": "Copiada",
+                "action.addAlt": "Adicionar ao AltStore",
+                "action.addSide": "Adicionar ao SideStore",
+                "aside.ios.lead": "Usa Feather, ESign ou Scarlet?",
+                "aside.ios.rest": "Cole essa URL na tela de fontes do app.",
+                "notes.summary": "Novidades desta versão",
+                "tvos.h2": "Apple TV",
+                "tvos.buildWord": "build",
+                "aside.tvos.lead": "Está configurando pela própria TV?",
+                "aside.tvos.rest": "No tvOS não existe área de transferência para colar, então vai ter que digitar a URL na mão.",
+                "releases.h2": "Todas as versões",
+                "releases.lead": "Esta tabela sai dos mesmos arquivos que o AltStore lê, então ela sempre bate com o que aparece no app, e cada download vem direto do CDN da Stremio. Selecione uma linha para ver o changelog, quando ela tem um. Em telas maiores também aparece o hash SHA-256 de cada IPA: selecione o hash e ele é copiado por inteiro.",
+                "releases.loading": "Lendo os arquivos da fonte…",
+                "releases.failed": "Os arquivos da fonte não carregaram. Dá para consultá-los direto abrindo stremio-ios.json ou stremio-tvos.json no GitHub.",
+                "plat.ios": "iOS / iPadOS",
+                "plat.tvos": "Apple TV",
+                "th.version": "Versão",
+                "th.app": "App",
+                "th.released": "Data",
+                "th.size": "Tamanho",
+                "th.fingerprint": "Hash",
+                "tag.latest": "atual",
+                "row.build": "build {n}",
+                "row.getIpa": "Baixar IPA",
+                "sha.title": "Copiar o SHA-256 completo",
+                "sha.copied": "copiado",
+                "count.releases": {
+                      "one": "1 versão",
+                      "other": "{n} versões"
+                },
+                "count.unavailable": "Não foi possível ler o arquivo",
+                "value.none": "—",
+                "footer.cdn.before": "Projeto da comunidade, sem nenhum vínculo com a Stremio. Os IPAs são servidos pelo CDN público da Stremio, em ",
+                "footer.cdn.after": "; este repositório publica apenas os metadados que apontam para eles.",
+                "footer.resign": "Apps assinados com um Apple ID gratuito param de abrir depois de sete dias, e você precisa assinar de novo.",
+                "footer.link": "Veja o código ou relate um problema no GitHub"
+          },
           "fr": {
                 "meta.title": "Stremio — source AltStore non officielle",
                 "meta.description": "Installez Stremio sur iPhone, iPad et Apple TV en dehors de l'App Store. Source communautaire pour AltStore et SideStore, synchronisée avec les serveurs de Stremio toutes les six heures.",
@@ -945,6 +1025,76 @@
                 "footer.resign": "Avec un Apple ID gratuit, la signature expire au bout de sept jours : l'app ne s'ouvre plus et il faut la re-signer.",
                 "footer.link": "Consulter le code ou signaler un problème sur GitHub"
           },
+          "it": {
+                "meta.title": "Stremio — Fonte non ufficiale per AltStore",
+                "meta.description": "Installa Stremio su iPhone, iPad e Apple TV senza passare dall'App Store. Fonte della community per AltStore e SideStore, allineata ogni sei ore a quello che pubblica Stremio.",
+                "ident.kind": "Fonte non ufficiale",
+                "nav.github": "Il codice su GitHub",
+                "lang.label": "Lingua",
+                "hero.h1": "Stremio su iPhone, iPad e Apple TV",
+                "hero.lead": "Stremio compila queste app e le tiene sui propri server, ma non le pubblica sull'App Store. Qui ci sono tutte, e l'elenco viene ricontrollato ogni sei ore: quando esce una versione nuova, AltStore o SideStore la vedono già quel giorno.",
+                "fresh.title": "L'elenco viene ricontrollato ogni sei ore",
+                "fresh.static": "Controllato ogni sei ore",
+                "fresh.checked": "Controllato {time}",
+                "fresh.last": "Ultimo controllo {time}",
+                "fresh.stopped": "Ultimo controllo {time}: gli aggiornamenti potrebbero essersi fermati",
+                "fresh.succeeded": "Ultimo controllo riuscito: {date}",
+                "time.justNow": "proprio ora",
+                "time.minutes": {
+                      "one": "1 minuto fa",
+                      "other": "{n} minuti fa"
+                },
+                "time.hours": {
+                      "one": "un'ora fa",
+                      "other": "{n} ore fa"
+                },
+                "time.days": {
+                      "one": "un giorno fa",
+                      "other": "{n} giorni fa"
+                },
+                "ios.h2": "iPhone e iPad",
+                "spec.build": "Build",
+                "spec.released": "Uscita il",
+                "spec.size": "Dimensione",
+                "source.label": "URL della fonte",
+                "action.copy": "Copia",
+                "action.copied": "Copiato",
+                "action.addAlt": "Aggiungi ad AltStore",
+                "action.addSide": "Aggiungi a SideStore",
+                "aside.ios.lead": "Usi Feather, ESign o Scarlet?",
+                "aside.ios.rest": "Incolla quell'URL nella schermata delle fonti dell'app.",
+                "notes.summary": "Novità di questa build",
+                "tvos.h2": "Apple TV",
+                "tvos.buildWord": "build",
+                "aside.tvos.lead": "Stai configurando tutto dalla TV?",
+                "aside.tvos.rest": "Su tvOS non esistono gli appunti, quindi l'URL va digitato a mano.",
+                "releases.h2": "Tutte le versioni",
+                "releases.lead": "Questa tabella nasce dagli stessi file che legge AltStore, quindi qui vedi esattamente quello che vede l'app, e ogni download arriva dal CDN di Stremio. Le righe che hanno un registro delle modifiche si aprono quando le selezioni; su schermi larghi compare anche l'hash SHA-256 di ogni IPA: selezionalo e viene copiato per intero.",
+                "releases.loading": "Lettura dei file della fonte…",
+                "releases.failed": "I file della fonte non si sono caricati. Puoi leggerli così come sono aprendo stremio-ios.json o stremio-tvos.json su GitHub.",
+                "plat.ios": "iOS / iPadOS",
+                "plat.tvos": "Apple TV",
+                "th.version": "Versione",
+                "th.app": "App",
+                "th.released": "Data",
+                "th.size": "Dimensione",
+                "th.fingerprint": "Hash",
+                "tag.latest": "ultima",
+                "row.build": "build {n}",
+                "row.getIpa": "Scarica IPA",
+                "sha.title": "Copia l'hash SHA-256 completo",
+                "sha.copied": "copiato",
+                "count.releases": {
+                      "one": "1 versione",
+                      "other": "{n} versioni"
+                },
+                "count.unavailable": "File della fonte non leggibile",
+                "footer.cdn.before": "Progetto della community, senza alcun legame con Stremio. Gli IPA li serve il CDN pubblico di Stremio, su ",
+                "footer.cdn.after": "; qui si pubblicano solo i metadati che puntano a quei file.",
+                "footer.resign": "Le app firmate con un Apple ID gratuito smettono di aprirsi dopo sette giorni, quindi la firma va rifatta.",
+                "footer.link": "Guarda il codice o segnala un problema su GitHub",
+                "value.none": "—"
+          },
           "de": {
                 "meta.title": "Stremio — unoffizielle AltStore-Quelle",
                 "meta.description": "Stremio auf iPhone, iPad und Apple TV sideloaden. Eine Community-Quelle für AltStore und SideStore, alle sechs Stunden von Stremios eigenen Servern aktualisiert.",
@@ -1014,6 +1164,80 @@
                 "footer.cdn.after": "; hier liegen nur die Metadaten, die darauf verweisen.",
                 "footer.resign": "Mit einer kostenlosen Apple ID signierte Apps lassen sich nach sieben Tagen nicht mehr öffnen – dann musst du sie neu signieren.",
                 "footer.link": "Quellcode lesen oder ein Problem auf GitHub melden"
+          },
+          "pl": {
+                "meta.title": "Stremio — nieoficjalne źródło dla AltStore",
+                "meta.description": "Stremio na iPhone'a, iPada i Apple TV bez App Store. Źródło społecznościowe dla AltStore i SideStore — buildy prosto z serwerów Stremio, sprawdzane co sześć godzin.",
+                "ident.kind": "Nieoficjalne źródło",
+                "nav.github": "Kod na GitHubie",
+                "lang.label": "Język",
+                "hero.h1": "Stremio na iPhone'a, iPada i Apple TV",
+                "hero.lead": "Stremio buduje aplikacje na iOS i tvOS i udostępnia je na własnych serwerach, ale do App Store ich nie wrzuca. Tutaj są wszystkie buildy, a lista odświeża się co sześć godzin — nowa wersja trafia do AltStore czy SideStore tego samego dnia, w którym wychodzi.",
+                "fresh.title": "Źródło jest sprawdzane co sześć godzin",
+                "fresh.static": "Sprawdzane co sześć godzin",
+                "fresh.checked": "Sprawdzone {time}",
+                "fresh.last": "Ostatnie sprawdzenie — {time}",
+                "fresh.stopped": "Ostatnie sprawdzenie — {time}; wygląda na to, że aktualizacje stanęły",
+                "fresh.succeeded": "Ostatnie udane sprawdzenie — {date}",
+                "time.justNow": "przed chwilą",
+                "time.minutes": {
+                      "one": "{n} minutę temu",
+                      "few": "{n} minuty temu",
+                      "many": "{n} minut temu"
+                },
+                "time.hours": {
+                      "one": "{n} godzinę temu",
+                      "few": "{n} godziny temu",
+                      "many": "{n} godzin temu"
+                },
+                "time.days": {
+                      "one": "{n} dzień temu",
+                      "few": "{n} dni temu",
+                      "many": "{n} dni temu"
+                },
+                "ios.h2": "iPhone i iPad",
+                "spec.build": "Build",
+                "spec.released": "Data wydania",
+                "spec.size": "Rozmiar",
+                "source.label": "Adres źródła",
+                "action.copy": "Kopiuj",
+                "action.copied": "Skopiowano",
+                "action.addAlt": "Dodaj do AltStore",
+                "action.addSide": "Dodaj do SideStore",
+                "aside.ios.lead": "Instalujesz przez Feather, ESign albo Scarlet?",
+                "aside.ios.rest": "Wklej adres powyżej do listy źródeł („Sources”) w samej aplikacji.",
+                "notes.summary": "Co nowego",
+                "tvos.h2": "Apple TV",
+                "tvos.buildWord": "build",
+                "aside.tvos.lead": "Ustawiasz to na samym telewizorze?",
+                "aside.tvos.rest": "Na tvOS nie ma schowka, więc adres trzeba wklikać pilotem ręcznie.",
+                "releases.h2": "Wszystkie wydania",
+                "releases.lead": "Tabela powstaje wprost z plików źródła, czyli z tych samych danych, które widzi AltStore. Same IPA lecą z serwerów Stremio. Wiersze z opisem zmian rozwijają się po kliknięciu, a na szerokim ekranie przy każdym widać skrót SHA-256 pliku IPA — kliknij skrót, żeby skopiować go w całości.",
+                "releases.loading": "Wczytywanie plików źródła…",
+                "releases.failed": "Nie udało się wczytać plików źródła. Można je otworzyć bezpośrednio na GitHubie: stremio-ios.json i stremio-tvos.json.",
+                "plat.ios": "iOS / iPadOS",
+                "plat.tvos": "Apple TV",
+                "th.version": "Wersja",
+                "th.app": "Aplikacja",
+                "th.released": "Wydano",
+                "th.size": "Rozmiar",
+                "th.fingerprint": "Skrót",
+                "tag.latest": "najnowszy",
+                "row.build": "build {n}",
+                "row.getIpa": "Pobierz IPA",
+                "sha.title": "Skopiuj cały SHA-256",
+                "sha.copied": "skopiowano",
+                "count.releases": {
+                      "one": "{n} wydanie",
+                      "few": "{n} wydania",
+                      "many": "{n} wydań"
+                },
+                "count.unavailable": "Plik źródła niedostępny",
+                "value.none": "—",
+                "footer.cdn.before": "Projekt społecznościowy, niezwiązany ze Stremio. Pliki IPA rozdaje publiczny CDN Stremio pod adresem ",
+                "footer.cdn.after": "; w tym repozytorium są tylko metadane, które do nich kierują.",
+                "footer.resign": "Podpis z darmowego Apple ID wygasa po siedmiu dniach — potem aplikacja się nie otworzy, dopóki jej ponownie nie podpiszesz.",
+                "footer.link": "Zobacz kod albo zgłoś problem na GitHubie"
           },
           "ru": {
                 "meta.title": "Stremio — неофициальный источник для AltStore",
@@ -1205,6 +1429,13 @@
       var m10 = n % 10, m100 = n % 100;
       if (lang === "ru") {
         if (m10 === 1 && m100 !== 11) return "one";
+        if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "few";
+        return "many";
+      }
+      // Polish shares Russian's three forms but not its boundaries: here
+      // "one" is 1 and nothing else, so 21 falls to many — "21 wersji".
+      if (lang === "pl") {
+        if (n === 1) return "one";
         if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "few";
         return "many";
       }
