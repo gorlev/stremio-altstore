@@ -205,6 +205,25 @@ class ScanReach(unittest.TestCase):
         self.assertTrue(any("/ios/" in u for u in self.asked))
         self.assertTrue(any("/tvos/" in u for u in self.asked))
 
+    def test_probes_only_the_platforms_it_was_given(self):
+        # The scan used to be called once per platform while probing both
+        # every time, so half of each run's requests were discarded unread.
+        self.serve_upstream([{"version": "2.0.6", "buildVersion": "21"}])
+        updater.scan_cdn({"2.0.6b21"}, platforms=["ios"])
+        self.assertTrue(any("/ios/" in u for u in self.asked))
+        self.assertFalse(any("/tvos/" in u for u in self.asked))
+
+    def test_an_unknown_platform_is_refused(self):
+        # Silently probing nothing would look like "no new versions".
+        self.serve_upstream([{"version": "2.0.6", "buildVersion": "21"}])
+        with self.assertRaises(ValueError):
+            updater.scan_cdn({"2.0.6b21"}, platforms=["ipados"])
+
+    def test_results_are_keyed_only_by_the_requested_platforms(self):
+        self.serve_upstream([{"version": "2.0.6", "buildVersion": "21"}])
+        found = updater.scan_cdn({"2.0.6b21"}, platforms=["tvos"])
+        self.assertEqual(set(found), {"tvos"})
+
     def test_unreachable_upstream_does_not_stop_the_scan(self):
         # Discovery must survive on its own if Stremio's source is down.
         self.serve_upstream([], status=503)

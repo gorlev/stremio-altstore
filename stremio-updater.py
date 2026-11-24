@@ -151,12 +151,22 @@ def upstream_release_tags() -> frozenset[str]:
     return frozenset(tags)
 
 
-def scan_cdn(known_tags: Iterable[str], *, verbose: bool = False, max_workers: int = 16) -> dict[str, dict[str, dict]]:
+def scan_cdn(known_tags: Iterable[str], *, platforms: Optional[Iterable[str]] = None,
+             verbose: bool = False, max_workers: int = 16) -> dict[str, dict[str, dict]]:
     """
     Scans the CDN in parallel. Tries the last known build + buffer range,
     plus whatever Stremio's own source is currently advertising.
+
+    `platforms` limits the probe to those platforms; the default is all of
+    them. Every candidate is a HEAD request against someone else's CDN, so
+    probing a platform this run will not look at is pure waste.
+
     Returns: {platform: {tag: {url, size, date}}}
     """
+    plats = list(platforms) if platforms is not None else list(PLATFORMS)
+    unknown = [p for p in plats if p not in PLATFORMS]
+    if unknown:
+        raise ValueError(f"unknown platform(s): {', '.join(unknown)}")
     known = set(known_tags)
     max_build = 0
     known_semvers: set[str] = set()
@@ -185,12 +195,13 @@ def scan_cdn(known_tags: Iterable[str], *, verbose: bool = False, max_workers: i
 
     # Build candidate list
     candidates: list[tuple[str, str, str]] = []  # (platform, tag, url)
-    for plat, info in PLATFORMS.items():
+    for plat in plats:
+        info = PLATFORMS[plat]
         for tag in tags:
             url = f"{CDN_BASE}/{tag}/{plat}/{info['file']}"
             candidates.append((plat, tag, url))
 
-    targets: dict[str, dict[str, dict]] = {"ios": {}, "tvos": {}}
+    targets: dict[str, dict[str, dict]] = {plat: {} for plat in plats}
 
     def check(cand: tuple[str, str, str]) -> Optional[tuple[str, str, dict]]:
         plat, tag, url = cand
@@ -327,33 +338,44 @@ def main() -> int:
     here = Path(__file__).parent
     platforms_to_run = (["ios", "tvos"] if args.platform == "all" else [args.platform])
 
-    total_new = 0
-    total_updated = 0
+    # Load every source first. One scan serves all platforms, so the
+    # known-tag window has to be the union of what they already list.
+    loaded: dict[str, tuple[Path, dict]] = {}
+    known_tags: set[str] = set()
     for plat in platforms_to_run:
         json_path = here / PLATFORMS[plat]["json"]
         if not json_path.exists():
             print(f"[WARN] {json_path} not found, skipping.")
             continue
-
-        print(f"\n=== {PLATFORMS[plat]['label']} ===")
         source = json.loads(json_path.read_text(encoding="utf-8"))
-
-        # Collect the tags we already list
-        known_tags: set[str] = set()
+        loaded[plat] = (json_path, source)
         for app in source["apps"]:
             for v in app.get("versions", []):
                 ver = v.get("version", "")
                 bv = v.get("buildVersion", "")
                 if ver and bv:
                     known_tags.add(f"{ver}b{bv}")
-        print(f"[INFO] Known versions: {len(known_tags)}")
 
-        if args.verbose:
-            for t in sorted(known_tags):
-                print(f"  - {t}")
+    if not loaded:
+        print("[ERROR] No source files found — nothing to update.")
+        return 1
 
-        print("[INFO] Scanning CDN...")
-        found = scan_cdn(known_tags, verbose=args.verbose)
+    print(f"[INFO] Known versions across {len(loaded)} source(s): {len(known_tags)}")
+    if args.verbose:
+        for t in sorted(known_tags):
+            print(f"  - {t}")
+
+    # A single scan for every platform being updated. scan_cdn already probes
+    # each platform it is given, but it used to be called once per platform
+    # and handed the result for the other one straight to the bin — half of
+    # every run's HEAD requests went nowhere.
+    print("[INFO] Scanning CDN...")
+    found = scan_cdn(known_tags, platforms=list(loaded), verbose=args.verbose)
+
+    total_new = 0
+    total_updated = 0
+    for plat, (json_path, source) in loaded.items():
+        print(f"\n=== {PLATFORMS[plat]['label']} ===")
 
         # Source URL update
         url_key = f"source_url_{plat}"
