@@ -416,6 +416,29 @@
       var d = new Date(iso + "T00:00:00Z");
       return isNaN(d) ? iso : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
     }
+    // Row cells are built as DOM nodes, not an innerHTML string. Everything
+    // rendered here comes from the JSON sources and the publish gate does
+    // constrain those fields — but a page that depends on a server-side
+    // validator for its own escaping is one bad merge away from an injection,
+    // and textContent costs nothing.
+    function addCell(tr, cls) {
+      var td = document.createElement("td");
+      if (cls) td.className = cls;
+      tr.appendChild(td);
+      return td;
+    }
+    function span(cls, text) {
+      var s = document.createElement("span");
+      if (cls) s.className = cls;
+      s.textContent = text;
+      return s;
+    }
+    // Only ever link to the CDN the gate allows. Assigning a href via the DOM
+    // executes nothing by itself, but a javascript: URL would still run on a
+    // click, so the scheme is checked rather than assumed.
+    function safeIpaURL(url) {
+      return (typeof url === "string" && /^https:\/\/dl\.strem\.io\//.test(url)) ? url : null;
+    }
     function bindCopy(el, getText) {
       el.addEventListener("click", function () {
         var t = getText();
@@ -507,16 +530,39 @@
           var tr = document.createElement("tr");
           var sha = e.v.sha256 || "";
           var notes = isRealNote(e.v.localizedDescription) ? e.v.localizedDescription : null;
-          tr.innerHTML =
-            "<td class='ver'>" + (notes ? "<span class='chev'>▸</span>" : "") +
-              "v" + e.v.version + " <span class='dim'>b" + e.v.buildVersion + "</span>" +
-              (i === 0 ? "<span class='chip'>LATEST</span>" : "") + "</td>" +
-            "<td class='dim'>" + (e.app.name || "") + "</td>" +
-            "<td class='dim'>" + fmtDate(e.v.date) + "</td>" +
-            "<td class='dim'>" + fmtMB(e.v.size) + "</td>" +
-            "<td>" + (sha ? "<button class='sha' title='Copy full hash'>" + sha.slice(0, 10) + "…</button>" : "<span class='dim'>—</span>") + "</td>" +
-            "<td><a class='dl' href='" + e.v.downloadURL + "'>IPA ↓</a></td>";
-          if (sha) bindCopy(tr.querySelector(".sha"), function () { return sha; });
+          var cVer = addCell(tr, "ver");
+          if (notes) cVer.appendChild(span("chev", "▸"));
+          cVer.appendChild(document.createTextNode("v" + e.v.version + " "));
+          cVer.appendChild(span("dim", "b" + e.v.buildVersion));
+          if (i === 0) cVer.appendChild(span("chip", "LATEST"));
+
+          addCell(tr, "dim").textContent = e.app.name || "";
+          addCell(tr, "dim").textContent = fmtDate(e.v.date);
+          addCell(tr, "dim").textContent = fmtMB(e.v.size);
+
+          var cSha = addCell(tr, "");
+          if (sha) {
+            var shaBtn = document.createElement("button");
+            shaBtn.className = "sha";
+            shaBtn.title = "Copy full hash";
+            shaBtn.textContent = sha.slice(0, 10) + "…";
+            cSha.appendChild(shaBtn);
+            bindCopy(shaBtn, function () { return sha; });
+          } else {
+            cSha.appendChild(span("dim", "—"));
+          }
+
+          var cDl = addCell(tr, "");
+          var href = safeIpaURL(e.v.downloadURL);
+          if (href) {
+            var dl = document.createElement("a");
+            dl.className = "dl";
+            dl.href = href;
+            dl.textContent = "IPA ↓";
+            cDl.appendChild(dl);
+          } else {
+            cDl.appendChild(span("dim", "—"));
+          }
           tb.appendChild(tr);
 
           // Older builds carry a changelog too; hang it off the row rather
