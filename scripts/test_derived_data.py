@@ -413,5 +413,85 @@ class Hashes(unittest.TestCase):
         self.assertEqual([m["version"] for m in missing], ["2.0.0"])
 
 
+class HashReverification(unittest.TestCase):
+    """A hash that no longer matches the file is worse than no hash at all.
+
+    Clients that verify sha256 refuse the download outright, so a stale hash
+    is a self-inflicted outage. Nothing used to look at a hash again once it
+    was written.
+    """
+
+    def _serve(self, length, status=200):
+        def fake(url, *, method="GET", headers=None, timeout=15):
+            return type("R", (), {"status": status,
+                                  "headers": {"Content-Length": str(length)},
+                                  "body": None})()
+        add_hashes.http_request = fake
+
+    def setUp(self):
+        self._real = add_hashes.http_request
+
+    def tearDown(self):
+        add_hashes.http_request = self._real
+
+    def _run(self, recorded, live, **kw):
+        sources = {"stremio-ios.json": doc(
+            [version("2.0.6", "21", sha256="d" * 64, size=recorded)])}
+        self._serve(live)
+        with contextlib.redirect_stdout(io.StringIO()):
+            stale, changed = add_hashes._reverify(sources, **kw)
+        return stale, changed, sources["stremio-ios.json"]["apps"][0]["versions"][0]
+
+    def test_unchanged_file_keeps_its_hash(self):
+        stale, changed, v = self._run(75942223, 75942223)
+        self.assertEqual(stale, 0)
+        self.assertEqual(changed, set())
+        self.assertEqual(v["sha256"], "d" * 64)
+
+    def test_replaced_file_loses_its_stale_hash(self):
+        stale, changed, v = self._run(75942223, 80000000)
+        self.assertEqual(stale, 1)
+        self.assertEqual(changed, {"stremio-ios.json"})
+        self.assertNotIn("sha256", v)
+
+    def test_replaced_file_gets_the_corrected_size(self):
+        # Hash and size must describe the same file, or the next backfill
+        # would warn about a mismatch it had already been told about.
+        _, _, v = self._run(75942223, 80000000)
+        self.assertEqual(v["size"], 80000000)
+
+    def test_a_dropped_hash_is_queued_for_the_backfill(self):
+        # Dropping the hash is only half the fix; the backfill has to pick it
+        # up, otherwise the version silently stays unhashed forever.
+        _, _, v = self._run(75942223, 80000000)
+        queued = add_hashes._missing({"stremio-ios.json": doc([v])})
+        self.assertEqual([m["version"] for m in queued], ["2.0.6"])
+
+    def test_dry_run_reports_without_touching_the_source(self):
+        stale, _, v = self._run(75942223, 80000000, dry_run=True)
+        self.assertEqual(stale, 1)
+        self.assertEqual(v["sha256"], "d" * 64)
+        self.assertEqual(v["size"], 75942223)
+
+    def test_an_unreachable_ipa_is_not_treated_as_replaced(self):
+        # prune_dead.py owns deciding what is gone; a 503 here means nothing.
+        sources = {"stremio-ios.json": doc(
+            [version("2.0.6", "21", sha256="d" * 64)])}
+        self._serve(0, status=503)
+        with contextlib.redirect_stdout(io.StringIO()):
+            stale, changed = add_hashes._reverify(sources)
+        self.assertEqual(stale, 0)
+        self.assertEqual(changed, set())
+        self.assertEqual(
+            sources["stremio-ios.json"]["apps"][0]["versions"][0]["sha256"], "d" * 64)
+
+    def test_versions_without_a_hash_are_left_alone(self):
+        sources = {"stremio-ios.json": doc([version("2.0.6", "21")])}
+        self._serve(999)
+        with contextlib.redirect_stdout(io.StringIO()):
+            stale, changed = add_hashes._reverify(sources)
+        self.assertEqual((stale, changed), (0, set()))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

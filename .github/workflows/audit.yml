@@ -64,6 +64,19 @@ jobs:
         # can never strand a device. Weekly is plenty for ~one build a week.
         run: python3 scripts/trim_versions.py --apply
 
+      - name: Re-verify recorded hashes against the CDN
+        id: rehash
+        # A sha256 used to be written once and never looked at again. If
+        # Stremio replaces an IPA at the same URL the stored hash stops
+        # matching and every client that verifies it refuses the download,
+        # with nothing here noticing. This HEADs each hashed version and
+        # drops any hash whose file changed size; the 6-hourly backfill then
+        # recomputes it. Self-healing, so rc 2 is reported, not fatal.
+        run: |
+          set +e
+          python3 scripts/add_hashes.py --reverify 2>&1 | tee rehash.txt
+          echo "rc=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+
       - name: Recover missing changelogs from the archive
         # The 6-hourly job captures notes from the live source, which only
         # shows the newest builds. Internet Archive captures of that same URL
@@ -134,6 +147,7 @@ jobs:
             echo ""
             echo "- Prune exit code: \`${{ steps.prune.outputs.rc }}\` (0 clean · 1 dead found · 2 needs a human)"
             echo "- Verify exit code: \`${{ steps.verify.outputs.rc }}\` (0 verified · 1 real drift · 2 too many IPAs unreadable to tell)"
+            echo "- Hash re-verify exit code: \`${{ steps.rehash.outputs.rc }}\` (0 all hashes still match · 2 a replaced IPA's stale hash was dropped)"
             echo ""
             echo '<details><summary>Prune output</summary>'
             echo ""
