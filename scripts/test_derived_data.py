@@ -251,6 +251,49 @@ class NewsFeed(unittest.TestCase):
         long = self.build([version("2.0.6", "21", localizedDescription="x" * 500)])
         self.assertLessEqual(len(long[0]["caption"]), build_news.MAX_CAPTION)
 
+    def test_a_section_heading_is_not_the_caption(self):
+        # Upstream's real shape. Shipping the literal first line put the word
+        # "Features" in front of users as the caption for the whole release.
+        changelog = ("Features\n\n"
+                     "- Redesigned toast notifications with Liquid Glass styling.\n"
+                     "- Added dismissible toast cards.\n\n"
+                     "Fixes\n\n"
+                     "- Dialogs now appear one at a time.")
+        items = self.build([version("2.0.6", "21", localizedDescription=changelog)])
+        self.assertEqual(items[0]["caption"],
+                         "Redesigned toast notifications with Liquid Glass styling.")
+
+    def test_prose_changelogs_still_use_their_first_line(self):
+        # A summary line followed by detail bullets must not be skipped in
+        # favour of the first bullet.
+        changelog = "We rewrote the subtitle engine.\n\n- faster\n- fewer glitches"
+        items = self.build([version("2.0.6", "21", localizedDescription=changelog)])
+        self.assertEqual(items[0]["caption"], "We rewrote the subtitle engine.")
+
+    def test_a_flat_run_of_lines_keeps_its_first_line(self):
+        # Stremio 2.0.3's real shape: no bullets, no blank lines, and a first
+        # line that is the summary. An earlier cut of the heading rule threw
+        # it away and captioned the release with its second feature instead.
+        changelog = ("feat: native Stremio app for macOS\n"
+                     "feat: automatic macOS updates with delta update support\n"
+                     "feat: update notices for outdated app versions")
+        items = self.build([version("2.0.6", "21", localizedDescription=changelog)])
+        self.assertEqual(items[0]["caption"], "feat: native Stremio app for macOS")
+
+    def test_numbered_items_count_as_items(self):
+        items = self.build([version("2.0.6", "21",
+                                    localizedDescription="What's new:\n\n1. Picture in picture.")])
+        self.assertEqual(items[0]["caption"], "Picture in picture.")
+
+    def test_a_heading_with_nothing_under_it_is_still_used(self):
+        items = self.build([version("2.0.6", "21", localizedDescription="Minor fixes")])
+        self.assertEqual(items[0]["caption"], "Minor fixes")
+
+    def test_a_long_first_bullet_is_still_bounded(self):
+        changelog = "Features\n\n- " + "y" * 500
+        items = self.build([version("2.0.6", "21", localizedDescription=changelog)])
+        self.assertLessEqual(len(items[0]["caption"]), build_news.MAX_CAPTION)
+
     def test_item_links_back_to_the_app(self):
         items = self.build([version("2.0.6", "21", localizedDescription="feat: x")])
         self.assertEqual(items[0]["appID"], "com.stremio.pal")

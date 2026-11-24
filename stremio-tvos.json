@@ -161,7 +161,7 @@
     {
       "title": "Stremio 2.1.3",
       "identifier": "com-stremio-pal-2-1-3-b28-apple-tv",
-      "caption": "Features",
+      "caption": "Redesigned toast notifications with adaptive layouts and Liquid Glass styling on supported systems.",
       "tintColor": "7055D9",
       "date": "2026-11-23",
       "notify": true,
@@ -171,7 +171,7 @@
     {
       "title": "Stremio 2.1.2",
       "identifier": "com-stremio-pal-2-1-2-b27-apple-tv",
-      "caption": "New",
+      "caption": "Added an option in Appearance settings to show titles below catalog posters.",
       "tintColor": "7055D9",
       "date": "2026-11-17",
       "notify": false,
@@ -181,7 +181,7 @@
     {
       "title": "Stremio 2.1.1",
       "identifier": "com-stremio-pal-2-1-1-b25-apple-tv",
-      "caption": "New",
+      "caption": "Playback speed is now remembered separately for each stream.",
       "tintColor": "7055D9",
       "date": "2026-10-31",
       "notify": false,
@@ -191,7 +191,7 @@
     {
       "title": "Stremio 2.1.0",
       "identifier": "com-stremio-pal-2-1-0-b24-apple-tv",
-      "caption": "New",
+      "caption": "Calendar with month navigation and a daily agenda of upcoming episodes.",
       "tintColor": "7055D9",
       "date": "2026-10-21",
       "notify": false,

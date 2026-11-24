@@ -57,6 +57,10 @@ MAX_CAPTION = 140
 # What merge_version() writes when it has no real changelog to record.
 PLACEHOLDER_RE = re.compile(r"^\s*.+\s+\d+(\.\d+)*\s+\(build\s+\d+\)\.\s*$")
 SLUG_RE = re.compile(r"[^a-z0-9]+")
+# A list item, in any of the forms upstream has used.
+BULLET_RE = re.compile(r"^\s*(?:[-*•–]|\d+[.)])\s+(.*)$")
+# Longer than this and it is a sentence, not a section label.
+HEADING_MAX_CHARS = 40
 
 
 def is_real_changelog(text: object) -> bool:
@@ -73,13 +77,45 @@ def _version_key(v: dict) -> tuple:
     return (parts, build)
 
 
+def _trim_caption(text: str) -> str:
+    return text if len(text) <= MAX_CAPTION else text[:MAX_CAPTION - 1].rstrip() + "…"
+
+
+def _looks_like_heading(line: str) -> bool:
+    """A bare section label such as "Features", "Fixes" or "What's new:".
+
+    Judged by shape rather than a word list, since the text is upstream's and
+    not ours to predict: short, not a list item, and not a sentence.
+    """
+    return (len(line) <= HEADING_MAX_CHARS
+            and not BULLET_RE.match(line)
+            and not line.endswith((".", "!", "?")))
+
+
 def caption_from(changelog: str) -> str:
-    """First meaningful line of the changelog, trimmed to a caption."""
-    for line in changelog.splitlines():
-        line = line.strip()
-        if line:
-            return line if len(line) <= MAX_CAPTION else line[:MAX_CAPTION - 1].rstrip() + "…"
-    return ""
+    """The first line of the changelog that actually says something.
+
+    Upstream writes these in sections — a bare "Features" heading, then
+    bullets — so the literal first line is a label, not a summary, and taking
+    it put the word "Features" in front of users as a release's caption. If
+    the first line reads as a heading, use the first real item under it;
+    changelogs written as prose are unaffected.
+    """
+    lines = [ln.strip() for ln in changelog.splitlines()]
+    lines = [ln for ln in lines if ln]
+    if not lines:
+        return ""
+
+    # A label only counts as a heading when it introduces a list. Some
+    # releases are written as a flat run of "feat: ..." lines with no bullets
+    # at all, and there the first line is the summary — skipping it would
+    # swap a good caption for an arbitrary second one.
+    first, rest = lines[0], lines[1:]
+    if _looks_like_heading(first) and rest:
+        bullet = BULLET_RE.match(rest[0])
+        if bullet and bullet.group(1).strip():
+            return _trim_caption(bullet.group(1).strip())
+    return _trim_caption(first)
 
 
 def _slug(text: str) -> str:
